@@ -108,7 +108,7 @@
         
         @keyframes pencil-reveal {
             0% { clip-path: inset(0 100% 100% 0); filter: grayscale(100%) contrast(2) brightness(1.5) blur(5px); }
-            100% { clip-path: inset(0 0 0 0); blur(0); }
+            100% { clip-path: inset(0 0 0 0); filter: blur(0); }
         }
         .pencil-draw-effect {
             animation: pencil-reveal 2.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
@@ -183,12 +183,10 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
     <div id="root"></div>
     <div class="paper-overlay"></div>
     <script type="module" src="./index.tsx"></script>
-<script type="module" src="/index.tsx"></script>
 </body>
 </html>
