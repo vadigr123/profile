@@ -8,9 +8,8 @@ interface SettingsModalProps {
 const MODELS = [
   { id: 'gemini-3-flash-preview', label: 'Gemini 3 Flash (Smartest)', desc: 'Best for general chatting and reasoning.' },
   { id: 'gemini-3-pro-preview', label: 'Gemini 3 Pro (Deep Thinking)', desc: 'Slower but more complex reasoning.' },
-  { id: 'gemini-2.5-flash-image', label: 'Nano Banana (Image Gen)', desc: 'Can generate and edit sketches or images!' },
-  { id: 'gemini-3-pro-image-preview', label: 'Nano Banana Pro (HQ Image)', desc: 'High quality image generation & editing.' },
   { id: 'gemini-2.5-flash-latest', label: 'Gemini 2.5 Flash (Fast)', desc: 'Quick and reliable responses.' },
+  { id: 'gemini-2.5-flash-lite-latest', label: 'Gemini 2.5 Flash Lite', desc: 'Lightweight and very snappy.' },
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
