@@ -113,7 +113,7 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const mikuPencilSketch = "https://images.unsplash.com/photo-1544273677-2415f5211883?q=80&w=1974&auto=format&fit=crop";
+  const mikuPencilSketch = "asset/img/mikus.png";
 
   return (
     <div className="paper-texture min-h-screen relative flex flex-col items-center p-4">
@@ -159,7 +159,7 @@ const App: React.FC = () => {
               <Poster 
                 title="e621 tool" 
                 href="https://vadigr123.github.io/e621/" 
-                imageUrl="https://images.unsplash.com/photo-1580136608260-4eb11f4bc246?q=80&w=200"
+                imageUrl="asset/img/e621.png"
                 className="rotate-[-2deg] scale-90 md:scale-100"
               />
               <div className="mt-2 flex justify-center">
@@ -170,7 +170,7 @@ const App: React.FC = () => {
               <Poster 
                 title="GitHub" 
                 href="https://github.com/vadigr123" 
-                imageUrl="https://images.unsplash.com/photo-1618401471353-b98aadebc25a?q=80&w=200"
+                imageUrl="asset/img/github.png"
                 className="rotate-[3deg] scale-90 md:scale-100"
               />
               <div className="mt-2 flex justify-center">
