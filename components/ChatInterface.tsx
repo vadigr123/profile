@@ -68,16 +68,18 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSend = async () => {
     if (!input.trim() || isLoading || !activeSessionId || !activeSession) return;
 
-    const apiKey = process.env.API_KEY;
+    // Check for user-provided token in localStorage, then fallback to environment
+    const customToken = localStorage.getItem('gemini_custom_token');
+    const apiKey = customToken || process.env.API_KEY;
+
     if (!apiKey) {
-      alert("No API key found. Please check your settings or environment configuration.");
+      alert("No Gemini API key found. Please scribble your token in Settings (cog icon) first!");
       return;
     }
 
     const userMsg = input.trim();
     setInput('');
     
-    // 1. Add User Message to UI
     const updatedWithUser = sessions.map(s => {
       if (s.id === activeSessionId) {
         return {
@@ -92,10 +94,8 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setIsLoading(true);
 
     try {
-      // 2. Initialize AI right before the call as per senior guidelines
       const ai = new GoogleGenAI({ apiKey });
       
-      // Reconstruct history excluding the model's first greeting to keep context clean
       const chatHistory = activeSession.messages.map(m => ({
         role: m.role,
         parts: [{ text: m.text }]
@@ -114,7 +114,6 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       const result = await chat.sendMessageStream({ message: userMsg });
       let fullResponse = '';
       
-      // 3. Add an empty model response bubble to fill via streaming
       setSessions(prev => prev.map(s => {
         if (s.id === activeSessionId) {
           return { ...s, messages: [...s.messages, { role: 'model' as const, text: '' }] };
@@ -137,11 +136,15 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           }));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
+      let errorMsg = 'oops... lead broke. try again!';
+      if (error?.message?.includes('API key not valid')) {
+        errorMsg = 'uh oh, your token seems wrong. double check it in settings!';
+      }
       setSessions(prev => prev.map(s => {
         if (s.id === activeSessionId) {
-          return { ...s, messages: [...s.messages, { role: 'model', text: 'oops... lead broke. try again!' }] };
+          return { ...s, messages: [...s.messages, { role: 'model', text: errorMsg }] };
         }
         return s;
       }));
