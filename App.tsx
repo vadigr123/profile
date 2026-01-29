@@ -295,13 +295,6 @@ const App: React.FC = () => {
             </div>
           )}
         </main>
-
-        <footer className="w-full text-center py-16 mt-16 border-t-2 border-[#444] dark:border-[#888] border-dashed">
-          <p className="pencil-text text-xl font-bold text-[#444] dark:text-[#aaa] flex items-center justify-center gap-2">
-            Sketch by: <span className="underline decoration-[#333] dark:decoration-[#888] underline-offset-4">@vadigr123</span>
-          </p>
-          <p className="pencil-text text-xs opacity-40 mt-2">pencil on grid paper, 2024</p>
-        </footer>
       </div>
     </div>
   );
