@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
@@ -41,9 +42,11 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
       chatRef.current = ai.chats.create({
         model: 'gemini-3-flash-preview',
-        systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
-        CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
-        Always refer to this memory if relevant to make the user feel recognized.`,
+        config: {
+          systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
+          CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
+          Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
+        },
         history: history.length > 0 ? history.slice(0, -1) : [],
       });
     }
@@ -116,19 +119,18 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
       for await (const chunk of result) {
         const c = chunk as GenerateContentResponse;
-        const parts = c.candidates?.[0]?.content?.parts || [];
-        for (const part of parts) {
-          if (part.text) fullResponse += part.text;
+        if (c.text) {
+          fullResponse += c.text;
+          
+          setSessions(prev => prev.map(s => {
+            if (s.id === activeSessionId) {
+              const msgs = [...s.messages];
+              msgs[msgs.length - 1] = { role: 'model', text: fullResponse };
+              return { ...s, messages: msgs };
+            }
+            return s;
+          }));
         }
-        
-        setSessions(prev => prev.map(s => {
-          if (s.id === activeSessionId) {
-            const msgs = [...s.messages];
-            msgs[msgs.length - 1] = { role: 'model', text: fullResponse };
-            return { ...s, messages: msgs };
-          }
-          return s;
-        }));
       }
     } catch (error) {
       console.error("Chat error:", error);
