@@ -15,16 +15,6 @@ A huge thank you to the AI "Dream Team" that provided the ideas, brainstorming, 
 
 Thank you for the creative spark and technical guidance! 💡✨
 
-## 📝 Recent Updates
-
-- **Now**: Updated title from 'Pencil Sketch' to 'Profile Card'
-- **2 minutes ago**: Added new files via upload
-- **1 hour ago**: Initial project setup
-
-## 👤 Author
-
-**vadigr123**
-
 ---
 
 <div align="center">
