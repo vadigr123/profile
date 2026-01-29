@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
@@ -42,10 +41,10 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
       chatRef.current = ai.chats.create({
         model: 'gemini-3-flash-preview',
-          systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
-          CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
-          Always refer to this memory if relevant to make the user feel recognized.`,
-          history: history.length > 0 ? history.slice(0, -1) : [],
+        systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
+        CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
+        Always refer to this memory if relevant to make the user feel recognized.`,
+        history: history.length > 0 ? history.slice(0, -1) : [],
       });
     }
   }, [activeSessionId, userMemory]);
