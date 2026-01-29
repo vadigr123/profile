@@ -68,8 +68,9 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSend = async () => {
     if (!input.trim() || isLoading || !activeSessionId || !activeSession) return;
 
-    // Check for user-provided token in localStorage, then fallback to environment
+    // Check for user-provided token and model in localStorage
     const customToken = localStorage.getItem('gemini_custom_token');
+    const selectedModel = localStorage.getItem('gemini_selected_model') || 'gemini-3-flash-preview';
     const apiKey = customToken || process.env.API_KEY;
 
     if (!apiKey) {
@@ -102,7 +103,7 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }));
 
       const chat = ai.chats.create({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         config: {
           systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
           CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
@@ -141,6 +142,8 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       let errorMsg = 'oops... lead broke. try again!';
       if (error?.message?.includes('API key not valid')) {
         errorMsg = 'uh oh, your token seems wrong. double check it in settings!';
+      } else if (error?.message?.includes('model') && error?.message?.includes('not found')) {
+        errorMsg = 'uh oh, that brain model is not available for your token! try changing it in settings.';
       }
       setSessions(prev => prev.map(s => {
         if (s.id === activeSessionId) {
