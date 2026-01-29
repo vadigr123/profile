@@ -5,6 +5,7 @@ import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 interface Message {
   role: 'user' | 'model';
   text: string;
+  image?: string; // base64 data URL
 }
 
 interface ChatSession {
@@ -68,7 +69,6 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSend = async () => {
     if (!input.trim() || isLoading || !activeSessionId || !activeSession) return;
 
-    // Check for user-provided token and model in localStorage
     const customToken = localStorage.getItem('gemini_custom_token');
     const selectedModel = localStorage.getItem('gemini_selected_model') || 'gemini-3-flash-preview';
     const apiKey = customToken || process.env.API_KEY;
@@ -96,45 +96,83 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     try {
       const ai = new GoogleGenAI({ apiKey });
-      
-      const chatHistory = activeSession.messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
-      }));
+      const isImageModel = selectedModel.includes('image');
 
-      const chat = ai.chats.create({
-        model: selectedModel,
-        config: {
-          systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
-          CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
-          Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
-        },
-        history: chatHistory,
-      });
+      if (isImageModel) {
+        // Nano Banana series models for image generation
+        const response: GenerateContentResponse = await ai.models.generateContent({
+          model: selectedModel,
+          contents: { parts: [{ text: userMsg }] },
+          config: {
+            imageConfig: { aspectRatio: "1:1" }
+          }
+        });
 
-      const result = await chat.sendMessageStream({ message: userMsg });
-      let fullResponse = '';
-      
-      setSessions(prev => prev.map(s => {
-        if (s.id === activeSessionId) {
-          return { ...s, messages: [...s.messages, { role: 'model' as const, text: '' }] };
+        let responseText = '';
+        let responseImage = '';
+
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            responseImage = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          } else if (part.text) {
+            responseText += part.text;
+          }
         }
-        return s;
-      }));
 
-      for await (const chunk of result) {
-        const c = chunk as GenerateContentResponse;
-        if (c.text) {
-          fullResponse += c.text;
-          
-          setSessions(prev => prev.map(s => {
-            if (s.id === activeSessionId) {
-              const msgs = [...s.messages];
-              msgs[msgs.length - 1] = { role: 'model', text: fullResponse };
-              return { ...s, messages: msgs };
-            }
-            return s;
-          }));
+        setSessions(prev => prev.map(s => {
+          if (s.id === activeSessionId) {
+            return { 
+              ...s, 
+              messages: [...s.messages, { 
+                role: 'model' as const, 
+                text: responseText || 'here is your doodle!', 
+                image: responseImage 
+              }] 
+            };
+          }
+          return s;
+        }));
+      } else {
+        // Standard Text/Multimodal models with streaming
+        const chatHistory = activeSession.messages.map(m => ({
+          role: m.role,
+          parts: [{ text: m.text }]
+        }));
+
+        const chat = ai.chats.create({
+          model: selectedModel,
+          config: {
+            systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
+            CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
+            Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
+          },
+          history: chatHistory,
+        });
+
+        const result = await chat.sendMessageStream({ message: userMsg });
+        let fullResponse = '';
+        
+        setSessions(prev => prev.map(s => {
+          if (s.id === activeSessionId) {
+            return { ...s, messages: [...s.messages, { role: 'model' as const, text: '' }] };
+          }
+          return s;
+        }));
+
+        for await (const chunk of result) {
+          const c = chunk as GenerateContentResponse;
+          if (c.text) {
+            fullResponse += c.text;
+            
+            setSessions(prev => prev.map(s => {
+              if (s.id === activeSessionId) {
+                const msgs = [...s.messages];
+                msgs[msgs.length - 1] = { role: 'model', text: fullResponse };
+                return { ...s, messages: msgs };
+              }
+              return s;
+            }));
+          }
         }
       }
     } catch (error: any) {
@@ -160,7 +198,6 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/20 dark:bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-2xl bg-[#f4f1ea] dark:bg-[#1c1c1c] border-2 border-[#444] dark:border-[#888] rounded-[10px_40px_10px_35px/35px_10px_40px_10px] shadow-2xl flex flex-col md:flex-row max-h-[85vh] relative overflow-hidden">
         
-        {/* History Sidebar */}
         <div className={`
           ${showHistory ? 'flex' : 'hidden md:flex'} 
           w-full md:w-48 bg-black/5 dark:bg-white/5 border-r-2 border-[#444] dark:border-[#888] border-dashed flex-col p-4 z-10
@@ -194,7 +231,6 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Chat Area */}
         <div className="flex-1 flex flex-col min-w-0 h-[60vh] md:h-auto">
           <div className="p-4 border-b-2 border-[#444] dark:border-[#888] border-dashed flex justify-between items-center bg-white/50 dark:bg-black/20">
             <div className="flex items-center gap-2">
@@ -221,8 +257,13 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     ${msg.role === 'user' 
                       ? 'bg-black dark:bg-[#333] text-white rounded-[20px_5px_25px_5px]' 
                       : 'bg-white dark:bg-[#222] text-black dark:text-[#eee] rounded-[5px_25px_5px_20px]'}
-                    message-text shadow-sm whitespace-pre-wrap relative
+                    message-text shadow-sm whitespace-pre-wrap relative flex flex-col gap-2
                   `}>
+                    {msg.image && (
+                      <div className="border-2 border-black/10 dark:border-white/10 rounded-lg overflow-hidden bg-gray-50 dark:bg-zinc-900">
+                        <img src={msg.image} alt="AI Doodle" className="w-full h-auto sketch-image" />
+                      </div>
+                    )}
                     <span className={isModelLoading ? 'typing-text' : ''}>
                       {isModelLoading && !msg.text ? "" : msg.text}
                     </span>
