@@ -16,6 +16,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [memory, setMemory] = useState(() => localStorage.getItem('miku_memory') || '');
   const [token, setToken] = useState(() => localStorage.getItem('gemini_custom_token') || '');
   const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('gemini_selected_model') || 'gemini-3-flash-preview');
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const saveMemory = (val: string) => {
     setMemory(val);
@@ -42,7 +43,37 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           ×
         </button>
         
-        <h2 className="pencil-text font-bold text-2xl mb-4 underline decoration-wavy text-black dark:text-white">Settings</h2>
+        <div className="flex items-baseline gap-2 mb-4">
+          <h2 className="pencil-text font-bold text-2xl underline decoration-wavy text-black dark:text-white">Settings</h2>
+          <button 
+            onClick={() => setShowInstructions(!showInstructions)}
+            className="group relative flex items-center justify-center w-6 h-6 border-2 border-[#444] dark:border-[#888] rounded-[40%_60%_40%_60%/60%_40%_60%_40%] pencil-text font-bold text-sm hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rotate-[-5deg] hover:rotate-[5deg]"
+            title="How to get a token?"
+          >
+            ?
+            {/* Scribble effect on hover */}
+            <span className="absolute inset-0 opacity-0 group-hover:opacity-20 pointer-events-none bg-[radial-gradient(circle,currentColor_1px,transparent_1px)] bg-[length:4px_4px]"></span>
+          </button>
+        </div>
+
+        {showInstructions && (
+          <div className="mb-6 p-4 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 animate-in fade-in slide-in-from-top-2 duration-300">
+            <h3 className="pencil-text font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">how to find ur token:</h3>
+            <ol className="pencil-text text-sm space-y-2 list-decimal list-inside text-black dark:text-[#eee]">
+              <li>go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-bold decoration-dotted">aistudio.google.com</a></li>
+              <li>click <span className="italic">"Get API key"</span> in the left sidebar</li>
+              <li>click <span className="italic">"Create API key in new project"</span></li>
+              <li>copy that long text (token)</li>
+              <li>paste it in the "Write ur Token" box below!</li>
+            </ol>
+            <button 
+              onClick={() => setShowInstructions(false)}
+              className="mt-3 text-xs underline opacity-60 hover:opacity-100 pencil-text"
+            >
+              got it, close this!
+            </button>
+          </div>
+        )}
         
         <div className="space-y-6">
           {/* Gemini Token Section */}
@@ -71,7 +102,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <select 
               value={selectedModel}
               onChange={(e) => handleModelChange(e.target.value)}
-              className="w-full p-2 pencil-text text-sm bg-white dark:bg-[#111] text-black dark:text-white border-2 border-[#444] dark:border-[#888] rounded-[15px_5px_10px_5px] focus:outline-none"
+              className="w-full p-2 pencil-text text-sm bg-white dark:bg-[#111] text-black dark:text-white border-2 border-[#444] dark:border-[#888] rounded-[15px_5px_10px_5px] focus:outline-none cursor-pointer"
             >
               {MODELS.map(m => (
                 <option key={m.id} value={m.id}>{m.label}</option>
