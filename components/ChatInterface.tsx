@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
 interface Message {
   role: 'user' | 'model';
@@ -68,9 +68,9 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSend = async () => {
     if (!input.trim() || isLoading || !activeSessionId || !activeSession) return;
 
-    // Check if API key is available before trying to initialize
-    if (!process.env.API_KEY) {
-      alert("Please configure your API key in Settings first! (cloud icon or settings button)");
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      alert("No API key found. Please check your settings or environment configuration.");
       return;
     }
 
@@ -92,11 +92,10 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setIsLoading(true);
 
     try {
-      // 2. Initialize AI right before the call
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // 2. Initialize AI right before the call as per senior guidelines
+      const ai = new GoogleGenAI({ apiKey });
       
-      // Prepare history for the model (convert our internal format to SDK format)
-      // We skip the last message (the one we just added) as it will be sent via sendMessageStream
+      // Reconstruct history excluding the model's first greeting to keep context clean
       const chatHistory = activeSession.messages.map(m => ({
         role: m.role,
         parts: [{ text: m.text }]
@@ -142,7 +141,7 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       console.error("Chat error:", error);
       setSessions(prev => prev.map(s => {
         if (s.id === activeSessionId) {
-          return { ...s, messages: [...s.messages, { role: 'model', text: 'oops... lead broke. maybe check your API key? try again!' }] };
+          return { ...s, messages: [...s.messages, { role: 'model', text: 'oops... lead broke. try again!' }] };
         }
         return s;
       }));
