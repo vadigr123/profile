@@ -170,6 +170,16 @@
             font-family: 'Caveat', cursive !important;
             font-size: 1.25rem;
         }
+        /* Markdown Styles for Chat */
+        .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; }
+        .markdown-body ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .markdown-body code { background: rgba(0,0,0,0.05); padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace !important; }
+        .dark .markdown-body code { background: rgba(255,255,255,0.1); }
+        .markdown-body pre { background: rgba(0,0,0,0.05); padding: 0.5rem; border-radius: 4px; overflow-x: auto; margin: 0.5rem 0; }
+        .dark .markdown-body pre { background: rgba(255,255,255,0.1); }
+        .markdown-body blockquote { border-left: 3px solid rgba(0,0,0,0.2); padding-left: 1rem; opacity: 0.8; }
+        .dark .markdown-body blockquote { border-left-color: rgba(255,255,255,0.3); }
+        .markdown-body a { text-decoration: underline; font-weight: bold; }
     </style>
 <script type="importmap">
 {
@@ -179,7 +189,9 @@
     "react/": "https://esm.sh/react@^19.2.4/",
     "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
     "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react-markdown": "https://esm.sh/react-markdown@^9.0.1",
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0"
   }
 }
 </script>
