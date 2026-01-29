@@ -127,7 +127,7 @@ const App: React.FC = () => {
             <Poster 
               title="e621 tool" 
               href="https://vadigr123.github.io/e621/" 
-              imageUrl= "/asset/img/e621.png"
+              imageUrl= "asset/img/e621.png"
               className="rotate-[-3deg]"
             />
             <div className="mt-4 flex justify-center">
@@ -139,7 +139,7 @@ const App: React.FC = () => {
             <Poster 
               title="GitHub" 
               href="https://github.com/vadigr123" 
-              imageUrl="/asset/img/github.png"
+              imageUrl="asset/img/github.png"
               className="rotate-[2deg]"
             />
             <div className="mt-4 flex justify-center">
