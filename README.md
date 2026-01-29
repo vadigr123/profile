@@ -1,20 +1,32 @@
+# Profile Card
+
+Welcome to the **Silly Mikus Sketch** project!  
+This repository contains a web-based application that has recently evolved into a specialized Profile Card component.
+
+## 🙏 Acknowledgments
+
+A huge thank you to the AI "Dream Team" that provided the ideas, brainstorming, and coding assistance to bring this website to life:
+
+- **Gemini** - For creative ideas and development support
+- **Grok** - For technical guidance
+- **Claude** - For coding assistance
+- **GPT 5.2** - For problem-solving and suggestions
+- **Qwen** - For coding expertise
+
+Thank you for the creative spark and technical guidance! 💡✨
+
+## 📝 Recent Updates
+
+- **Now**: Updated title from 'Pencil Sketch' to 'Profile Card'
+- **2 minutes ago**: Added new files via upload
+- **1 hour ago**: Initial project setup
+
+## 👤 Author
+
+**vadigr123**
+
+---
+
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+  Made with ❤️ and AI assistance
 </div>
-
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/14108UWOWsXJS9CghrbUzrNxeh3K8JUoe
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
