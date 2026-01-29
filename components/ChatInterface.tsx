@@ -25,32 +25,10 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   
-  const chatRef = useRef<Chat | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId);
   const userMemory = localStorage.getItem('miku_memory') || '';
-
-  // Initialize or Switch Chat
-  useEffect(() => {
-    if (activeSessionId) {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const history = activeSession?.messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
-      })) || [];
-
-      chatRef.current = ai.chats.create({
-        model: 'gemini-3-flash-preview',
-        config: {
-          systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
-          CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
-          Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
-        },
-        history: history.length > 0 ? history.slice(0, -1) : [],
-      });
-    }
-  }, [activeSessionId, userMemory]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -88,12 +66,19 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   }, []);
 
   const handleSend = async () => {
-    if (!input.trim() || !chatRef.current || isLoading || !activeSessionId) return;
+    if (!input.trim() || isLoading || !activeSessionId || !activeSession) return;
+
+    // Check if API key is available before trying to initialize
+    if (!process.env.API_KEY) {
+      alert("Please configure your API key in Settings first! (cloud icon or settings button)");
+      return;
+    }
 
     const userMsg = input.trim();
     setInput('');
     
-    const updatedSessions = sessions.map(s => {
+    // 1. Add User Message to UI
+    const updatedWithUser = sessions.map(s => {
       if (s.id === activeSessionId) {
         return {
           ...s,
@@ -103,13 +88,34 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }
       return s;
     });
-    setSessions(updatedSessions);
+    setSessions(updatedWithUser);
     setIsLoading(true);
 
     try {
-      const result = await chatRef.current.sendMessageStream({ message: userMsg });
+      // 2. Initialize AI right before the call
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      
+      // Prepare history for the model (convert our internal format to SDK format)
+      // We skip the last message (the one we just added) as it will be sent via sendMessageStream
+      const chatHistory = activeSession.messages.map(m => ({
+        role: m.role,
+        parts: [{ text: m.text }]
+      }));
+
+      const chat = ai.chats.create({
+        model: 'gemini-3-flash-preview',
+        config: {
+          systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
+          CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
+          Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
+        },
+        history: chatHistory,
+      });
+
+      const result = await chat.sendMessageStream({ message: userMsg });
       let fullResponse = '';
       
+      // 3. Add an empty model response bubble to fill via streaming
       setSessions(prev => prev.map(s => {
         if (s.id === activeSessionId) {
           return { ...s, messages: [...s.messages, { role: 'model' as const, text: '' }] };
@@ -136,7 +142,7 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       console.error("Chat error:", error);
       setSessions(prev => prev.map(s => {
         if (s.id === activeSessionId) {
-          return { ...s, messages: [...s.messages, { role: 'model', text: 'oops... lead broke. try again!' }] };
+          return { ...s, messages: [...s.messages, { role: 'model', text: 'oops... lead broke. maybe check your API key? try again!' }] };
         }
         return s;
       }));
