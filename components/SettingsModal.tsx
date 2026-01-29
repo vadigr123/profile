@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -9,12 +9,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [memory, setMemory] = useState(() => localStorage.getItem('miku_memory') || '');
 
   const handleSelectKey = async () => {
-    try {
-      // @ts-ignore - window.aistudio is provided by the environment
-      await window.aistudio.openSelectKey();
-      onClose();
-    } catch (err) {
-      console.error("Failed to open key selection:", err);
+    const aiStudio = (window as any).aistudio;
+    if (aiStudio && typeof aiStudio.openSelectKey === 'function') {
+      try {
+        await aiStudio.openSelectKey();
+        onClose();
+      } catch (err) {
+        console.error("Failed to open key selection:", err);
+      }
+    } else {
+      console.warn("aistudio.openSelectKey is not available in this environment.");
+      alert("The automatic key selection helper is not available. Please ensure your environment is configured correctly.");
     }
   };
 
