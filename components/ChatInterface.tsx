@@ -1,11 +1,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'model';
   text: string;
-  image?: string; // base64 data URL
 }
 
 interface ChatSession {
@@ -43,7 +44,7 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const newSession: ChatSession = {
       id: newId,
       title: `scribble ${sessions.length + 1}`,
-      messages: [{ role: 'model', text: 'meow! new paper, new doodles! what is on your mind?' }],
+      messages: [{ role: 'model', text: 'meow! new paper, what is on your mind?' }],
       updatedAt: Date.now()
     };
     setSessions([newSession, ...sessions]);
@@ -66,31 +67,16 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   }, []);
 
-  const handleSend = async (forceImage: boolean = false) => {
+  const handleSend = async () => {
     if (!input.trim() || isLoading || !activeSessionId || !activeSession) return;
 
     const customToken = localStorage.getItem('gemini_custom_token');
-    let selectedModel = localStorage.getItem('gemini_selected_model') || 'gemini-3-flash-preview';
-    
-    // If user clicked the Doodle button, we force an image model
-    if (forceImage) {
-      selectedModel = 'gemini-2.5-flash-image';
-    }
-
+    const selectedModel = localStorage.getItem('gemini_selected_model') || 'gemini-3-flash-preview';
     const apiKey = customToken || process.env.API_KEY;
 
     if (!apiKey) {
       alert("No Gemini API key found. Please scribble your token in Settings (cog icon) first!");
       return;
-    }
-
-    // Special check for Pro Image model (requires selected key in some environments)
-    if (selectedModel === 'gemini-3-pro-image-preview' && window.aistudio) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        if (!hasKey) {
-            await window.aistudio.openSelectKey();
-            // Proceed assuming success as per guidelines
-        }
     }
 
     const userMsg = input.trim();
@@ -111,96 +97,54 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     try {
       const ai = new GoogleGenAI({ apiKey });
-      const isImageModel = selectedModel.includes('image');
+      
+      const chatHistory = activeSession.messages.map(m => ({
+        role: m.role,
+        parts: [{ text: m.text }]
+      }));
 
-      if (isImageModel) {
-        // Nano Banana series models for image generation
-        const response: GenerateContentResponse = await ai.models.generateContent({
-          model: selectedModel,
-          contents: { parts: [{ text: userMsg }] },
-          config: {
-            imageConfig: { aspectRatio: "1:1" }
-          }
-        });
+      const chat = ai.chats.create({
+        model: selectedModel,
+        config: {
+          systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
+          CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
+          Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
+        },
+        history: chatHistory,
+      });
 
-        let responseText = '';
-        let responseImage = '';
-
-        if (response.candidates?.[0]?.content?.parts) {
-          for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData) {
-              responseImage = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-            } else if (part.text) {
-              responseText += part.text;
-            }
-          }
+      const result = await chat.sendMessageStream({ message: userMsg });
+      let fullResponse = '';
+      
+      setSessions(prev => prev.map(s => {
+        if (s.id === activeSessionId) {
+          return { ...s, messages: [...s.messages, { role: 'model' as const, text: '' }] };
         }
+        return s;
+      }));
 
-        setSessions(prev => prev.map(s => {
-          if (s.id === activeSessionId) {
-            return { 
-              ...s, 
-              messages: [...s.messages, { 
-                role: 'model' as const, 
-                text: responseText || (forceImage ? 'meow! i doodled this for u!' : 'here is your doodle!'), 
-                image: responseImage 
-              }] 
-            };
-          }
-          return s;
-        }));
-      } else {
-        // Standard Text/Multimodal models with streaming
-        const chatHistory = activeSession.messages.map(m => ({
-          role: m.role,
-          parts: [{ text: m.text }]
-        }));
-
-        const chat = ai.chats.create({
-          model: selectedModel,
-          config: {
-            systemInstruction: `You are "Silly Ai Assistent", a hand-drawn pencil sketch character. You are quirky, helpful in a chaotic way, and artistic. Keep responses short and lowercase.
-            CONTEXT ABOUT USER (MEMORY): ${userMemory || 'nothing known yet.'}
-            If the user asks for a drawing or image, tell them to click the "Doodle" pencil button next to the input!
-            Always refer to this memory if relevant to make the user feel recognized. You support Ukrainian, Russian, and English.`,
-          },
-          history: chatHistory,
-        });
-
-        const result = await chat.sendMessageStream({ message: userMsg });
-        let fullResponse = '';
-        
-        setSessions(prev => prev.map(s => {
-          if (s.id === activeSessionId) {
-            return { ...s, messages: [...s.messages, { role: 'model' as const, text: '' }] };
-          }
-          return s;
-        }));
-
-        for await (const chunk of result) {
-          const c = chunk as GenerateContentResponse;
-          if (c.text) {
-            fullResponse += c.text;
-            
-            setSessions(prev => prev.map(s => {
-              if (s.id === activeSessionId) {
-                const msgs = [...s.messages];
-                msgs[msgs.length - 1] = { role: 'model', text: fullResponse };
-                return { ...s, messages: msgs };
-              }
-              return s;
-            }));
-          }
+      for await (const chunk of result) {
+        const c = chunk as GenerateContentResponse;
+        if (c.text) {
+          fullResponse += c.text;
+          
+          setSessions(prev => prev.map(s => {
+            if (s.id === activeSessionId) {
+              const msgs = [...s.messages];
+              msgs[msgs.length - 1] = { role: 'model', text: fullResponse };
+              return { ...s, messages: msgs };
+            }
+            return s;
+          }));
         }
       }
     } catch (error: any) {
       console.error("Chat error:", error);
       let errorMsg = 'oops... lead broke. try again!';
-      
       const errorString = error?.toString() || '';
       
       if (errorString.includes('429') || errorString.includes('RESOURCE_EXHAUSTED')) {
-        errorMsg = 'uh oh! i ran out of graphite (quota limit reached). please wait a bit before doodling more!';
+        errorMsg = 'uh oh! i ran out of graphite (quota limit reached). please wait a bit before scribbling more!';
       } else if (errorString.includes('API key not valid')) {
         errorMsg = 'uh oh, your token seems wrong. double check it in settings!';
       } else if (errorString.includes('model') && errorString.includes('not found')) {
@@ -281,22 +225,16 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     ${msg.role === 'user' 
                       ? 'bg-black dark:bg-[#333] text-white rounded-[20px_5px_25px_5px]' 
                       : 'bg-white dark:bg-[#222] text-black dark:text-[#eee] rounded-[5px_25px_5px_20px]'}
-                    message-text shadow-sm whitespace-pre-wrap relative flex flex-col gap-2
+                    message-text shadow-sm relative flex flex-col gap-2
                   `}>
-                    {msg.image && (
-                      <div className="border-2 border-black/10 dark:border-white/10 rounded-lg overflow-hidden bg-gray-50 dark:bg-zinc-900 group relative">
-                        <img src={msg.image} alt="AI Doodle" className="w-full h-auto sketch-image" />
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                           <a href={msg.image} download="doodle.png" className="bg-black/50 text-white p-1 rounded text-[10px]">save</a>
-                        </div>
-                      </div>
-                    )}
-                    <span className={isModelLoading ? 'typing-text' : ''}>
-                      {isModelLoading && !msg.text ? "" : msg.text}
-                    </span>
+                    <div className={`markdown-body ${isModelLoading ? 'typing-text' : ''}`}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {isModelLoading && !msg.text ? "" : msg.text}
+                      </ReactMarkdown>
+                    </div>
                     {isModelLoading && (
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs opacity-60 italic typing-text">scribbling in a notebook...</span>
+                        <span className="text-xs opacity-60 italic typing-text">scribbling...</span>
                         <span className="typing-scribble" />
                       </div>
                     )}
@@ -313,23 +251,11 @@ const ChatInterface: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="scribble or ask for a doodle..."
+                placeholder="scribble here..."
                 className="flex-1 bg-white dark:bg-[#111] text-black dark:text-white border-2 border-[#444] dark:border-[#888] rounded-[15px_5px_20px_5px] px-4 py-2 pencil-text focus:outline-none focus:ring-1 focus:ring-black/20"
               />
               <button 
-                onClick={() => handleSend(true)}
-                disabled={isLoading || !input.trim()}
-                title="Nano Banana Doodle"
-                className="bg-white dark:bg-[#333] border-2 border-[#444] dark:border-[#888] text-black dark:text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#444] transition-colors disabled:opacity-30 group relative"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Nano Banana Doodle</span>
-              </button>
-              <button 
-                onClick={() => handleSend(false)}
+                onClick={handleSend}
                 disabled={isLoading || !input.trim()}
                 className="bg-[#333] dark:bg-[#555] text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-black dark:hover:bg-[#666] transition-colors disabled:opacity-50"
               >
