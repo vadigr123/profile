@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вадим | Про мене</title>
+  <meta name="description" content="Особистий сайт Вадима (Poyo): чотири улюблені арти з X, соцмережі, персонажі та музика.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=15">
+</head>
+<body>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ ★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ </span>
+      <span>★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ ★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ </span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-text">
+      <h1>Привіт,<br>я <mark>Вадим</mark>!</h1>
+      <p class="tagline">Експериментую з ШІ, фуррі-інтроверт а також просто Вадім</p>
+      <a href="#social" class="btn btn-dark">Мої соц мережі ↓</a>
+    </div>
+    <div class="hero-avatar">
+      <div class="avatar-frame">
+        <img src="images/avatar.png" alt="Аватар" class="avatar avatar-character">
+      </div>
+      <span class="sticker sticker-2" id="discord-status" data-status="loading" title="Discord статус"><i class="status-dot"></i><span id="status-text">Завантаження…</span></span>
+    </div>
+  </header>
+
+  <nav class="site-nav" id="nav">
+    <a href="#social">Соц мережі</a>
+    <a href="#art">Арт</a>
+    <a href="#about">Про мене</a>
+    <a href="#characters">Персонажі</a>
+    <a href="#what-i-do">Чим займаюсь</a>
+    <a href="#songs">Топ пісень</a>
+  </nav>
+
+  <main>
+
+    <section id="social" class="card reveal">
+      <h2><span class="num">01</span> Мої соц мережі</h2>
+      <ul class="social-list">
+        <li><a href="https://www.twitch.tv/poyo_ai" target="_blank" rel="noopener" class="s-twitch">Twitch</a></li>
+        <li><a href="https://www.youtube.com/@poyo_ai" target="_blank" rel="noopener" class="s-youtube">YouTube</a></li>
+        <li><a href="https://x.com/poyo_a1" target="_blank" rel="noopener" class="s-x">X / Twitter</a></li>
+        <li><a href="https://t.me/ai_poyo" target="_blank" rel="noopener" class="s-telegram">Telegram</a></li>
+        <li><a href="https://discord.gg/UtYvGwFfvx" target="_blank" rel="noopener noreferrer" class="s-discord">Discord</a></li>
+        <li><a href="https://www.tiktok.com/@poyo.ai" target="_blank" rel="noopener noreferrer" class="s-tiktok">TikTok</a></li>
+      </ul>
+    </section>
+
+    <section id="art" class="card reveal">
+      <div class="art-title-row">
+        <h2><span class="num">02</span> Арт бібліотека</h2>
+        <a class="art-profile-link" href="https://x.com/poyo_a1" target="_blank" rel="noopener noreferrer">Мій X ↗</a>
+      </div>
+      <p class="hint" id="art-description">Чотири обрані арти з моїх постів в X. Натисни на арт, щоб збільшити, або на кнопку під рамкою, щоб відкрити оригінальний пост.</p>
+      <div class="gallery" id="gallery" aria-live="off">
+        <figure class="art-card" data-art-index="1" data-post-url="https://x.com/poyo_a1/status/2110732130619932995">
+          <button class="art-tile" type="button" data-image-src="images/art/art1.svg" data-post-url="https://x.com/poyo_a1/status/2110732130619932995" data-caption="Арт 1 із поста @poyo_a1" aria-label="Переглянути арт 1">
+            <img src="images/art/art1.svg" alt="Арт 1 — попередній перегляд до додавання фото" loading="lazy" width="400" height="400">
+            <span class="art-zoom" aria-hidden="true">↗</span>
+          </button>
+          <a class="art-origin" href="https://x.com/poyo_a1/status/2110732130619932995" target="_blank" rel="noopener noreferrer" aria-label="Відкрити пост 1 у X">Відкрити</a>
+        </figure>
+        <figure class="art-card" data-art-index="2" data-post-url="https://x.com/poyo_a1/status/2110349984252002715">
+          <button class="art-tile" type="button" data-image-src="images/art/art2.svg" data-post-url="https://x.com/poyo_a1/status/2110349984252002715" data-caption="Арт 2 із поста @poyo_a1" aria-label="Переглянути арт 2">
+            <img src="images/art/art2.svg" alt="Арт 2 — попередній перегляд до додавання фото" loading="lazy" width="400" height="400">
+            <span class="art-zoom" aria-hidden="true">↗</span>
+          </button>
+          <a class="art-origin" href="https://x.com/poyo_a1/status/2110349984252002715" target="_blank" rel="noopener noreferrer" aria-label="Відкрити пост 2 у X">Відкрити</a>
+        </figure>
+        <figure class="art-card" data-art-index="3" data-post-url="https://x.com/poyo_a1/status/2109663894642028757">
+          <button class="art-tile" type="button" data-image-src="images/art/art3.svg" data-post-url="https://x.com/poyo_a1/status/2109663894642028757" data-caption="Арт 3 із поста @poyo_a1" aria-label="Переглянути арт 3">
+            <img src="images/art/art3.svg" alt="Арт 3 — попередній перегляд до додавання фото" loading="lazy" width="400" height="400">
+            <span class="art-zoom" aria-hidden="true">↗</span>
+          </button>
+          <a class="art-origin" href="https://x.com/poyo_a1/status/2109663894642028757" target="_blank" rel="noopener noreferrer" aria-label="Відкрити пост 3 у X">Відкрити</a>
+        </figure>
+        <figure class="art-card" data-art-index="4" data-post-url="https://x.com/poyo_a1/status/2105836165962387963">
+          <button class="art-tile" type="button" data-image-src="images/art/art4.svg" data-post-url="https://x.com/poyo_a1/status/2105836165962387963" data-caption="Арт 4 із поста @poyo_a1" aria-label="Переглянути арт 4">
+            <img src="images/art/art4.svg" alt="Арт 4 — попередній перегляд до додавання фото" loading="lazy" width="400" height="400">
+            <span class="art-zoom" aria-hidden="true">↗</span>
+          </button>
+          <a class="art-origin" href="https://x.com/poyo_a1/status/2105836165962387963" target="_blank" rel="noopener noreferrer" aria-label="Відкрити пост 4 у X">Відкрити</a>
+        </figure>
+      </div>
+      <p class="art-message" id="art-message" hidden role="status">Зображення ще не додані у сайт. Кнопки «Пост у X» вже працюють; для власних фото використовуй ADD_4_PHOTOS.bat.</p>
+    </section>
+
+    <section id="about" class="card reveal about-card">
+      <h2><span class="num">03</span> Про мене</h2>
+      <div class="about-intro">
+        <span class="about-eyebrow">WHO IS BEHIND POYO? ✳</span>
+        <p class="about-lead">
+          Привіт! Мене звуть
+          <button type="button" class="about-name about-interactive" id="about-name" aria-label="Натисни, щоб змінити ім’я" title="Клацни, щоб змінити ім’я">Вадім</button><span class="about-punctuation">!</span>
+          Мені
+          <span class="about-inline-popover about-birthday-anchor">
+            <button type="button" class="about-age about-interactive" id="about-age" aria-describedby="birthday-tooltip" aria-expanded="false">19</button>
+            <span class="about-birthday-tooltip" id="birthday-tooltip" role="tooltip">
+              <strong>🎂 27.06.2007</strong>
+              <span class="about-tooltip-note">До наступного дня народження:</span>
+              <span class="about-countdown" id="about-countdown">Обчислюємо…</span>
+            </span>
+          </span>, я із
+          <span class="about-inline-popover about-location-anchor">
+            <a class="about-location about-interactive" id="about-location" href="https://www.google.com/maps/search/?api=1&amp;query=Ternopil%2C%20Ukraine" target="_blank" rel="noopener noreferrer" aria-describedby="location-tooltip">заходу України</a>
+            <span class="about-location-tooltip" id="location-tooltip" role="tooltip">📍 Тернопільська обл.<br><small>Натисни — відкриється мапа Тернополя ↗</small></span>
+          </span>.
+        </p>
+      </div>
+      <div class="about-story">
+        <p>Я дуже сором’язливий із новими людьми, але досить швидко звикаю до інших! Люблю допомагати, підтримувати близьких і часом просто робити із себе дурника. :3</p>
+        <p>Я
+          <button type="button" class="about-married about-interactive" id="about-married" aria-haspopup="dialog" aria-controls="white-character-dialog" aria-label="Одружений — переглянути Character Sheet White">одружений</button>
+          з чудовим чоловіком! ❤️
+        </p>
+        <p>Я «нейрокліпак», який обожнює все, що пов’язано зі штучним інтелектом. Також із радістю можу сказати, що я фуррі й люблю фуррі-ком’юніті, хоча поки не так часто буваю на івентах.</p>
+        <p>Потроху намагаюся пробитися у
+          <a class="about-twitch about-interactive" href="https://www.twitch.tv/poyo_ai" target="_blank" rel="noopener noreferrer" aria-label="Перейти на Twitch poyo_ai">стрімінг</a>,
+          а ще вчуся «малювати». Чесно кажучи, виходить не завжди, тому я часто кличу на допомогу ШІ. 😅</p>
+        <p class="about-goodbye">Радий був познайомитися! <span aria-hidden="true">★</span></p>
+      </div>
+      <div class="about-footer">
+        <span class="about-hint"><span aria-hidden="true">✦</span> Спробуй навести або натиснути на підкреслені слова!</span>
+        <div class="chips">
+          <span>#ШІ</span><span>#фуррі</span><span>#стримінг</span><span>#арт</span><span>#ігри</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="characters" class="card reveal">
+      <h2><span class="num">04</span> Мої персонажі</h2>
+      <p class="hint">Наведи курсор на картинку персонажа, щоб побачити Character Sheet біля мишки, або натисни на картку, щоб відкрити повне досьє.</p>
+      <div class="characters">
+        <article class="character character-poyo">
+          <button class="char-profile-trigger" type="button" data-character="poyo" aria-label="Відкрити інформацію та Character Sheet персонажа Poyo" aria-haspopup="dialog">
+            <div class="char-pic-frame">
+              <img src="images/characters/poyo.png" alt="Poyo" class="char-pic-img" width="320" height="320" loading="lazy">
+            </div>
+            <span class="char-status-sticker char-status-poyo" aria-label="Статус: Головна фуросна"><span class="char-status-dot" aria-hidden="true"></span>Головна фуросна</span>
+            <span class="char-subtitle">Sweet Mouse</span>
+            <h3>Poyo</h3>
+            <p class="char-species">Антропоморфна миша</p>
+            <div class="char-tags"><span>Сором’язлива</span><span>Мила</span><span>Добра</span></div>
+            
+            <p class="char-description">Тиха й добра мишка, яка цінує затишок, щирість і тепле спілкування.</p>
+            
+            <span class="char-open-hint">Клацнути тут</span>
+          </button>
+        </article>
+        <article class="character character-mikus">
+          <button class="char-profile-trigger" type="button" data-character="mikus" aria-label="Відкрити інформацію та Character Sheet персонажа Mikus" aria-haspopup="dialog">
+            <div class="char-pic-frame">
+              <img src="images/characters/mikus.png" alt="Mikus" class="char-pic-img" width="320" height="320" loading="lazy">
+            </div>
+            <span class="char-status-sticker char-status-mikus" aria-label="Статус: Фурсона для публічного англомовного комюніті"><span class="char-status-dot" aria-hidden="true"></span>Фурсона для публічного англомовного комюніті</span>
+            <span class="char-subtitle">Silent Ocelot</span>
+            <h3>Mikus</h3>
+            <p class="char-species">Гібрид оцелота</p>
+            <div class="char-tags"><span>Серйозний</span><span>Сором’язливий</span><span>Інтроверт</span></div>
+            <p class="char-role-mini">Розробник AI Інструментів</p>
+            <p class="char-description">Спокійний інтроверт, який більше спостерігає, ніж говорить.</p>
+            
+            <span class="char-open-hint">Клацнути тут</span>
+          </button>
+        </article>
+        <article class="character character-merp">
+          <button class="char-profile-trigger" type="button" data-character="merp" aria-label="Відкрити інформацію та Character Sheet персонажа Merp" aria-haspopup="dialog">
+            <div class="char-pic-frame">
+              <img src="images/characters/merp.png" alt="Merp" class="char-pic-img" width="320" height="320" loading="lazy">
+            </div>
+            <span class="char-status-sticker char-status-merp" aria-label="Статус: система не знайдена"><span class="char-status-dot" aria-hidden="true"></span>система не знайдена</span>
+            <span class="char-subtitle">Hidden Fox</span>
+            <h3>Merp</h3>
+            <p class="char-species">Цундере лис</p>
+            <div class="char-tags"><span>Цундере</span><span>Загадковий</span><span>Колючий</span></div>
+            
+            <p class="char-description">Незалежний лис з гострим характером і прихованою ніжною стороною.</p>
+            <p class="char-glitch" aria-label="Невідома інформація" data-glitch="[Невідома інформація]">[Невідома інформація]</p>
+            <span class="char-open-hint">Клацнути тут</span>
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <section id="what-i-do" class="card reveal">
+      <h2><span class="num">05</span> Чим я займаюсь</h2>
+      <p class="hint">Трошки коду, творчого хаосу й нескінченних експериментів.</p>
+      <ul class="activity-list activity-grid">
+        <li class="activity-card activity-ai">
+          <div class="activity-matrix-rain" id="activity-matrix-rain" aria-hidden="true">
+            <canvas class="activity-matrix-canvas" id="activity-matrix-canvas"></canvas>
+            <div class="activity-matrix-fallback">poyo · silly mouse · vadym gay<br>silly mouse · poyo · vadym gay<br>vadym gay · silly mouse · poyo</div>
+          </div>
+          <div class="activity-content">
+            <span class="activity-index">01 / CODE MODE</span>
+            <h3>AI розробник</h3>
+            <p>Роблю код за допомогою різних моделей.</p>
+            <p class="activity-quote">Люблю використовувати ШІ для всього! Від простих робіт до ігор!</p>
+          </div>
+        </li>
+        <li class="activity-card activity-edit" id="activity-edit-card">
+          <canvas class="activity-edit-canvas" id="activity-edit-canvas" aria-label="Місце для малювання жовтим кольором"></canvas>
+          <div class="activity-content">
+            <span class="activity-index">02 / EDIT MODE</span>
+            <h3>Люблю займатися редагування!</h3>
+            <p>Я не сказав би, що я художник на 100%, але редагувати арти, стікери та фото я люблю!</p>
+          </div>
+          <div class="activity-edit-tools">
+            <span class="activity-draw-hint">✎ Намалюй щось жовтим!</span>
+            <button type="button" class="activity-clear" id="activity-clear" aria-label="Очистити малюнок">Очистити ↺</button>
+          </div>
+        </li>
+        <li class="activity-card activity-creator">
+          <div class="activity-content">
+            <span class="activity-index">03 / SIDE QUEST</span>
+            <h3>НедоКреатор</h3>
+            <p>Люблю створювати багато непотрібних проєктів, витрачати час на прості ігри, просто втикати й робити безкорисні речі!</p>
+            <p class="activity-quote">Люблю ШІ-контент, а також теми про нього!</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="songs" class="card reveal">
+      <h2><span class="num">06</span> Мій топ пісень</h2>
+      <div class="tabs" role="tablist" aria-label="Категорії пісень">
+        <button class="tab active" role="tab" aria-selected="true" data-target="dreamcore">☁ Dreamcore</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="japanese">🌸 Japanese</button>
+        <button class="tab" role="tab" aria-selected="false" data-target="default">🎵 Default</button>
+      </div>
+
+      <div class="player-panel active" id="panel-dreamcore" role="tabpanel"
+           data-playlist="https://soundcloud.com/vadigr123/sets/dreamcore-by-mikus"></div>
+      <div class="player-panel" id="panel-japanese" role="tabpanel"
+           data-playlist="https://soundcloud.com/vadigr123/sets/j-dance-vocaloid-by-mikus"></div>
+      <div class="player-panel" id="panel-default" role="tabpanel"
+           data-playlist="https://soundcloud.com/vadigr123/sets/just-music-by-mikus"></div>
+
+      <a id="sc-open" class="sc-link" href="https://soundcloud.com/vadigr123/sets/dreamcore-by-mikus" target="_blank" rel="noopener">Відкрити плейлист у SoundCloud ↗</a>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Вадим &nbsp;·&nbsp; зроблено з ♥ і жовтим кольором</p>
+    <a href="#nav" class="to-top">↑ Нагору</a>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Перегляд арту" hidden>
+    <button class="lightbox-close" id="lightbox-close" aria-label="Закрити">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+    <p id="lightbox-caption"></p>
+    <a id="lightbox-source" class="lightbox-source" href="https://x.com/poyo_a1/media" target="_blank" rel="noopener noreferrer" hidden>Відкрити пост у X ↗</a>
+  </div>
+
+
+  <!-- Досьє персонажа: відкривається натисканням на картку -->
+  <!-- Окреме плаваюче прев’ю — НЕ змінює картку, показується лише над фото. -->
+  <div class="char-cursor-preview" id="char-cursor-preview" aria-hidden="true" hidden>
+    <span class="char-cursor-title" id="char-cursor-title">CHARACTER SHEET</span>
+    <img id="char-cursor-sheet" src="" alt="" width="600" height="400">
+    <span class="char-cursor-caption">Вид спереду · ззаду · збоку</span>
+  </div>
+
+  <dialog class="character-dialog" id="character-dialog" aria-labelledby="character-modal-title">
+    <div class="character-dialog-body">
+      <button class="character-dialog-close" id="character-dialog-close" type="button" aria-label="Закрити інформацію про персонажа">×</button>
+      <div class="character-dialog-heading">
+        <span class="char-modal-eyebrow">POYO / CHARACTER DATABASE</span>
+        <h2 id="character-modal-title">Poyo</h2>
+        <span class="char-modal-subtitle" id="character-modal-subtitle"></span>
+        <span class="char-modal-status" id="character-modal-status" role="status"></span>
+      </div>
+      <div class="character-dialog-grid">
+        <div class="character-dialog-info">
+          <p class="char-modal-kind" id="character-modal-species"></p>
+          <div class="char-modal-tags" id="character-modal-tags"></div>
+          <p class="char-modal-role" id="character-modal-role" hidden></p>
+          <h3>Про персонажа</h3>
+          <p id="character-modal-personality"></p>
+          <h3>Атмосфера</h3>
+          <p id="character-modal-vibe"></p>
+          <h3>Цікавий факт</h3>
+          <p id="character-modal-fact"></p>
+          <p id="character-modal-glitch" class="char-modal-glitch" data-glitch="[Невідома інформація]" hidden>[Невідома інформація]</p>
+          <div class="char-modal-links" id="character-modal-links" hidden></div>
+        </div>
+        <div class="character-dialog-sheet">
+          <div class="char-sheet-caption"><strong>CHARACTER SHEET</strong><span>FRONT / BACK / SIDE</span></div>
+          <img id="character-modal-sheet" src="" alt="" width="1536" height="1024">
+          <a class="character-sheet-link" id="character-sheet-link" href="#" target="_blank" rel="noopener noreferrer">Відкрити оригінальний Character Sheet ↗</a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+
+  <!-- White: попередній перегляд під курсором і повний Character Sheet у діалозі. -->
+  <div class="about-white-preview" id="about-white-preview" aria-hidden="true" hidden>
+    <span class="about-white-preview-title">WHITE / CHARACTER SHEET</span>
+    <img src="images/character-sheets/white.png" width="400" height="300" alt="Character Sheet White — попередній перегляд">
+    <span class="about-white-preview-note">Клацни «одружений», щоб побачити повністю</span>
+    <div class="white-social-block white-social-preview">
+      <span class="white-social-title">Соцмережі White</span>
+      <nav class="white-social-links" aria-label="Соцмережі White у підказці">
+        <a href="https://t.me/white_nsfw" target="_blank" rel="noopener noreferrer">Telegram ↗</a>
+        <a href="https://x.com/White_NSFW" target="_blank" rel="noopener noreferrer">X / Twitter ↗</a>
+        <a href="https://discord.gg/JjCzvPu6p9" target="_blank" rel="noopener noreferrer">Discord ↗</a>
+      </nav>
+    </div>
+  </div>
+  <dialog class="about-white-dialog" id="white-character-dialog" aria-labelledby="white-character-title">
+    <div class="about-white-dialog-inner">
+      <button class="about-white-dialog-close" id="white-character-close" type="button" aria-label="Закрити Character Sheet White">×</button>
+      <div class="about-white-heading">
+        <span class="about-white-eyebrow">POYO / SPECIAL CHARACTER FILE</span>
+        <h2 id="white-character-title">White <span aria-hidden="true">♥</span></h2>
+        <p>Мій чудовий чоловік • антропоморфний далматинець</p>
+      </div>
+      <div class="white-social-block white-social-dialog">
+        <span class="white-social-title">Соцмережі White</span>
+        <nav class="white-social-links" aria-label="Соцмережі White">
+          <a href="https://t.me/white_nsfw" target="_blank" rel="noopener noreferrer">Telegram ↗</a>
+          <a href="https://x.com/White_NSFW" target="_blank" rel="noopener noreferrer">X / Twitter ↗</a>
+          <a href="https://discord.gg/JjCzvPu6p9" target="_blank" rel="noopener noreferrer">Discord ↗</a>
+        </nav>
+      </div>
+      <img class="about-white-sheet" src="images/character-sheets/white.png" alt="Character Reference Sheet White: антропоморфний далматинець, чотири ракурси, емоції, деталі та палітра кольорів" width="2000" height="1500" loading="lazy">
+      <a class="about-white-full" href="images/character-sheets/white.png" target="_blank" rel="noopener noreferrer">Відкрити Character Sheet повністю ↗</a>
+    </div>
+  </dialog>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/gallery-static.js"></script>
+  <script src="js/discord.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/about.js?v=15"></script>
+  <script src="js/activities.js?v=11"></script>
+</body>
+</html>

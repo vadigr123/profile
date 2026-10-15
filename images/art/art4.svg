@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#ff5ea8"/>
+  <circle cx="200" cy="190" r="110" fill="#ffd60a" stroke="#111" stroke-width="8"/>
+  <rect x="60" y="300" width="280" height="40" fill="#111"/>
+  <text x="200" y="205" font-size="44" font-weight="900" text-anchor="middle" fill="#111" font-family="Arial Black, Arial, sans-serif">АРТ 4</text>
+</svg>
