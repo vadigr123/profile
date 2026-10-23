@@ -3,20 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вадим | Про мене</title>
-  <meta name="description" content="Особистий сайт Вадима (Poyo): чотири улюблені арти з X, соцмережі, персонажі та музика.">
+  <title>Вадим | Хеловінська версія</title>
+  <meta name="description" content="Особистий сайт Вадима (Poyo) у хеловінській темі: арти, соцмережі, персонажі та музика.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/halloween.css?v=4">
 </head>
 <body>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span>★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ ★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ </span>
-      <span>★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ ★ ВІТАЮ НА МОЄМУ САЙТІ ★ ЗАХОДЬ, ДИВИСЬ, ЗАЛИШАЙСЯ </span>
+  <dialog class="site-notice" id="site-notice" open aria-modal="true" aria-labelledby="site-notice-title">
+    <div class="site-notice-card">
+      <span class="site-notice-eyebrow" id="site-notice-eyebrow">ВАЖЛИВА ІНФОРМАЦІЯ</span>
+      <h2 id="site-notice-title">Сповіщення</h2>
+      <p class="site-notice-copy"><span id="site-notice-copy-start">Привіт! Перед переглядом сайту зверни увагу: цей сайт ніяк не пов’язаний з автором </span><a class="site-notice-author" id="site-notice-author" href="https://github.com/vadigr123" target="_blank" rel="noopener noreferrer">Mikus (vadigr123)<span aria-hidden="true"> ↗</span></a><span id="site-notice-copy-end">. Mikus лише допомагає з хостингом на GitHub. Дякую за розуміння!</span></p>
+      <form method="dialog">
+        <button class="site-notice-button" id="site-notice-button" type="submit" autofocus>Ок</button>
+      </form>
     </div>
+  </dialog>
+  <script src="js/notice.js"></script>
+
+  <div class="marquee" id="page-top" aria-hidden="true">
+    <div class="marquee-track">
+      <span>☾ 🎃 ХЕЛОВІН НА МОЄМУ САЙТІ ☾ ЗАХОДЬ, ЯКЩО НЕ БОЇШСЯ 🦇 ☾</span>
+      <span>☾ 🎃 ХЕЛОВІН НА МОЄМУ САЙТІ ☾ ЗАХОДЬ, ЯКЩО НЕ БОЇШСЯ 🦇 ☾</span>
+    </div>
+  </div>
+
+  <div class="halloween-garland" aria-hidden="true">
+    <img class="halloween-garland-art" src="images/halloween/halloween-garland.png" alt="" width="1440" height="136">
   </div>
 
   <header class="hero">
@@ -38,8 +55,10 @@
     <a href="#art">Арт</a>
     <a href="#about">Про мене</a>
     <a href="#characters">Персонажі</a>
+    <a href="#stream-news">Новинки стріма</a>
     <a href="#what-i-do">Чим займаюсь</a>
     <a href="#songs">Топ пісень</a>
+    <a href="#anonymous">Анонімно</a>
   </nav>
 
   <main>
@@ -192,6 +211,45 @@
       </div>
     </section>
 
+    <!-- 04.1 — Stream news. The floating question marks are decorative. -->
+    <section id="stream-news" class="card reveal stream-news-section">
+      <div class="stream-news-background" id="stream-question-field" aria-hidden="true">
+        <span class="stream-question" style="left:3%;top:9%;font-size:39px;opacity:0.35" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:17%;top:14%;font-size:53px;opacity:0.22" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:28%;top:6%;font-size:26px;opacity:0.45" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:42%;top:19%;font-size:70px;opacity:0.21" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:58%;top:8%;font-size:44px;opacity:0.34" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:76%;top:11%;font-size:58px;opacity:0.48" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:90%;top:22%;font-size:82px;opacity:0.32" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:98%;top:5%;font-size:31px;opacity:0.45" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:5%;top:42%;font-size:64px;opacity:0.38" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:18%;top:53%;font-size:35px;opacity:0.48" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:29%;top:39%;font-size:52px;opacity:0.27" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:44%;top:46%;font-size:32px;opacity:0.44" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:61%;top:35%;font-size:51px;opacity:0.19" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:79%;top:44%;font-size:61px;opacity:0.32" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:93%;top:57%;font-size:41px;opacity:0.52" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:7%;top:78%;font-size:67px;opacity:0.34" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:24%;top:91%;font-size:48px;opacity:0.46" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:39%;top:75%;font-size:35px;opacity:0.28" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:51%;top:92%;font-size:71px;opacity:0.31" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:67%;top:83%;font-size:37px;opacity:0.47" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:83%;top:77%;font-size:52px;opacity:0.44" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:97%;top:91%;font-size:75px;opacity:0.26" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:53%;top:61%;font-size:29px;opacity:0.36" aria-hidden="true">?</span>
+        <span class="stream-question" style="left:70%;top:62%;font-size:42px;opacity:0.42" aria-hidden="true">?</span>
+      </div>
+      <div class="stream-news-content">
+        <span class="stream-news-index">04.1 / UNKNOWN SIGNAL</span>
+        <h2><span class="num">04.1</span> <span class="stream-glitch" data-text="Новинки стріма">Новинки стріма</span></h2>
+        <p class="stream-news-kicker" aria-label="Щось готується... але що саме?">
+          <span class="stream-news-signal" id="stream-news-signal" data-full="Щось готується... але що саме?" data-text="Щось готується... але що саме?" aria-hidden="true">Щось готується... але що саме?</span>
+        </p>
+        <p class="stream-news-desc">Місце для новин про майбутні стріми, ідеї та анонси. Скоро тут з’являться подробиці.</p>
+        <a class="stream-news-twitch" href="https://www.twitch.tv/poyo_ai" target="_blank" rel="noopener noreferrer">Дивитися Twitch ↗</a>
+      </div>
+    </section>
+
     <section id="what-i-do" class="card reveal">
       <h2><span class="num">05</span> Чим я займаюсь</h2>
       <p class="hint">Трошки коду, творчого хаосу й нескінченних експериментів.</p>
@@ -209,14 +267,14 @@
           </div>
         </li>
         <li class="activity-card activity-edit" id="activity-edit-card">
-          <canvas class="activity-edit-canvas" id="activity-edit-canvas" aria-label="Місце для малювання жовтим кольором"></canvas>
+          <canvas class="activity-edit-canvas" id="activity-edit-canvas" aria-label="Місце для малювання гарбузовим кольором"></canvas>
           <div class="activity-content">
             <span class="activity-index">02 / EDIT MODE</span>
             <h3>Люблю займатися редагування!</h3>
             <p>Я не сказав би, що я художник на 100%, але редагувати арти, стікери та фото я люблю!</p>
           </div>
           <div class="activity-edit-tools">
-            <span class="activity-draw-hint">✎ Намалюй щось жовтим!</span>
+            <span class="activity-draw-hint">✎ Намалюй щось гарбузовим!</span>
             <button type="button" class="activity-clear" id="activity-clear" aria-label="Очистити малюнок">Очистити ↺</button>
           </div>
         </li>
@@ -249,11 +307,60 @@
       <a id="sc-open" class="sc-link" href="https://soundcloud.com/vadigr123/sets/dreamcore-by-mikus" target="_blank" rel="noopener">Відкрити плейлист у SoundCloud ↗</a>
     </section>
 
+    <!-- 07 — Anonymous inbox. Only the Cloudflare Worker talks to Telegram. -->
+    <section id="anonymous" class="card reveal anon-section">
+      <div class="anon-heading">
+        <div>
+          <h2><span class="num">07</span> Напиши мені анонімно!</h2>
+          <p class="hint">Надішли повідомлення, намалюй щось або створи кумедне TTS-привітання. Без реєстрації та без імені.</p>
+        </div>
+        <span class="anon-bubble" aria-hidden="true">✉ ?</span>
+      </div>
+      <div class="anon-modes" role="tablist" aria-label="Тип анонімного повідомлення">
+        <button type="button" class="anon-mode is-active" role="tab" id="anon-tab-text" aria-selected="true" aria-controls="anon-panel-text" data-anon-mode="text">✉ Текст</button>
+        <button type="button" class="anon-mode" role="tab" id="anon-tab-drawing" aria-selected="false" aria-controls="anon-panel-drawing" data-anon-mode="drawing">✎ Малюнок</button>
+        <button type="button" class="anon-mode" role="tab" id="anon-tab-tts" aria-selected="false" aria-controls="anon-panel-tts" data-anon-mode="tts">♫ TTS</button>
+      </div>
+      <form id="anon-form" class="anon-form" novalidate>
+        <div class="anon-panel" id="anon-panel-text" role="tabpanel" aria-labelledby="anon-tab-text">
+          <label for="anon-message" class="anon-label">Твоє анонімне повідомлення</label>
+          <textarea id="anon-message" maxlength="1200" rows="5" placeholder="Привіт, Poyo! Я хочу сказати..." spellcheck="true"></textarea>
+          <span class="anon-counter" id="anon-count">0 / 1200</span>
+        </div>
+        <div class="anon-panel" id="anon-panel-drawing" role="tabpanel" aria-labelledby="anon-tab-drawing" hidden>
+          <p class="anon-label">Намалюй щось гарбузовим — малюнок прийде в Telegram як PNG</p>
+          <div class="anon-draw-box"><canvas id="anon-drawing" aria-label="Поле для малювання" width="800" height="380"></canvas></div>
+          <div class="anon-draw-actions"><button type="button" class="anon-secondary" id="anon-clear">Очистити ↺</button><span>Можна малювати мишкою або пальцем</span></div>
+        </div>
+        <div class="anon-panel" id="anon-panel-tts" role="tabpanel" aria-labelledby="anon-tab-tts" hidden>
+          <label for="anon-tts-text" class="anon-label">Що має сказати робот?</label>
+          <textarea id="anon-tts-text" maxlength="160" rows="3" placeholder="Hello Poyo! You are a silly mouse!"></textarea>
+          <div class="anon-voice-line">
+            <label for="anon-voice">Голос</label>
+            <select id="anon-voice">
+              <option value="sam">SAM / Retro</option>
+              <option value="elf">Elf / Високий</option>
+              <option value="robot">Little Robot</option>
+              <option value="alien">Alien</option>
+            </select>
+            <button type="button" class="anon-secondary" id="anon-preview-tts">▶ Прослухати</button>
+          </div>
+          <audio id="anon-tts-audio" controls preload="none" hidden></audio>
+        </div>
+        <div class="anon-send-footer">
+          <div id="anon-configuration" class="anon-setup-note" role="note">Щоб увімкнути відправлення, спочатку налаштуй Cloudflare Worker і Turnstile. Інструкція є у ZIP.</div>
+          <div id="anon-turnstile" class="anon-turnstile" aria-label="Захист від спаму"></div>
+          <button type="submit" class="anon-submit" id="anon-submit" disabled>Надіслати анонімно ↗</button>
+          <p class="anon-status" id="anon-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
   </main>
 
   <footer class="site-footer">
-    <p>© <span id="year"></span> Вадим &nbsp;·&nbsp; зроблено з ♥ і жовтим кольором</p>
-    <a href="#nav" class="to-top">↑ Нагору</a>
+    <p>© <span id="year"></span> Вадим &nbsp;·&nbsp; зроблено з ♥ і гарбузовим настроєм 🎃</p>
+    <a href="#page-top" class="to-top">↑ Нагору</a>
   </footer>
 
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Перегляд арту" hidden>
@@ -348,5 +455,8 @@
   <script src="js/characters.js"></script>
   <script src="js/about.js?v=15"></script>
   <script src="js/activities.js?v=11"></script>
+  <script src="tools/silly-voice-lab/sam.js"></script>
+  <script src="js/stream-news.js?v=18"></script>
+  <script src="js/anonymous.js?v=16"></script>
 </body>
 </html>

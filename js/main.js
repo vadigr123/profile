@@ -1,6 +1,13 @@
 // Рік у футері
 document.getElementById("year").textContent = new Date().getFullYear();
 
+// Повертаємо сторінку до самого початку, незалежно від sticky-навігації.
+document.querySelector(".to-top")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  window.scrollTo({ top: 0, behavior });
+});
+
 // Підсвічування активного пункту меню
 const navLinks = document.querySelectorAll(".site-nav a");
 const sections = document.querySelectorAll("main section[id]");

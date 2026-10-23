@@ -1,0 +1,9 @@
+name = "poyo-anonymous-inbox"
+main = "src/worker.mjs"
+compatibility_date = "2026-10-01"
+
+# Replace this with the exact origin of your published website (scheme + hostname, WITHOUT path).
+# Example: https://vadigr123.github.io/pages/index.html -> origin https://vadigr123.github.io
+# Add https://poyo.eu.cc too if using a custom domain. Comma-separated, no wildcard.
+[vars]
+ALLOWED_ORIGINS = "https://vadigr123.github.io,http://localhost:8000,http://127.0.0.1:8000"

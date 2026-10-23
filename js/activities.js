@@ -1,4 +1,4 @@
-// Animations for the three hobbies: falling phrases and a drawable yellow background.
+// Animations for the three hobbies: falling phrases and a drawable pumpkin-orange background.
 // No dependencies, network access, or user tracking.
 (() => {
   'use strict';
@@ -136,6 +136,7 @@
   if (!canvas || !canvas.getContext) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
+  const drawColor = getComputedStyle(document.documentElement).getPropertyValue('--yellow').trim() || '#f9c900';
 
   // Store points normalized to the canvas. Redraw correctly on resize/zoom.
   const strokes = [];
@@ -168,8 +169,8 @@
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = 6;
-    ctx.strokeStyle = '#f9c900';
-    ctx.fillStyle = '#f9c900';
+    ctx.strokeStyle = drawColor;
+    ctx.fillStyle = drawColor;
     ctx.beginPath();
     const first = points[0];
     ctx.moveTo(first.x * width, first.y * height);
