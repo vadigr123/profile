@@ -1,0 +1,56 @@
+name: Update X art gallery
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Two times daily. Public sources may be unavailable or rate-limited.
+    - cron: '17 6,18 * * *'
+
+# Neither FxTwitter nor X syndication requires the user's X token/login in this workflow.
+permissions:
+  contents: write
+
+concurrency:
+  group: poyo-x-gallery
+  cancel-in-progress: false
+
+jobs:
+  update-gallery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find site path
+        shell: bash
+        run: |
+          if [[ -f index.html && -f scripts/sync_twitter_art.py ]]; then
+            echo 'SITE_DIR=.' >> "$GITHUB_ENV"
+          elif [[ -f pages/index.html && -f pages/scripts/sync_twitter_art.py ]]; then
+            echo 'SITE_DIR=pages' >> "$GITHUB_ENV"
+          elif [[ -f about-me-site/index.html && -f about-me-site/scripts/sync_twitter_art.py ]]; then
+            echo 'SITE_DIR=about-me-site' >> "$GITHUB_ENV"
+          else
+            echo 'Cannot find site in /, /pages, or /about-me-site' >&2
+            exit 1
+          fi
+      - name: Install photo optimizer
+        run: python3 -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Get public photos via FxTwitter (with syndication fallback)
+        shell: bash
+        run: |
+          python3 "$SITE_DIR/scripts/sync_twitter_art.py" \
+            --username poyo_a1 \
+            --output "$SITE_DIR/data/twitter-art.json" \
+            --images-dir "$SITE_DIR/images/twitter" \
+            --limit 40
+      - name: Commit photo cache if changed
+        shell: bash
+        run: |
+          git add -- "$SITE_DIR/data/twitter-art.json" "$SITE_DIR/images/twitter"
+          if git diff --cached --quiet; then
+            echo 'No new photos to commit'
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m 'Refresh X art gallery (no API token)'
+          git push
