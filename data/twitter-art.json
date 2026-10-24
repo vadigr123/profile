@@ -1,8 +1,18 @@
 {
   "username": "poyo_a1",
-  "updated_at": "2026-10-23T21:28:41+00:00",
+  "updated_at": "2026-10-24T20:54:47+00:00",
   "source": "FxTwitter public media timeline (unofficial, best effort)",
   "posts": [
+    {
+      "tweet_id": "2113749136075853878",
+      "media_key": "2113749097156915200",
+      "post_url": "https://x.com/poyo_a1/status/2113749136075853878",
+      "source_image_url": "https://pbs.twimg.com/media/HVWLmtBXMAAF8GM.jpg?name=orig",
+      "alt": "",
+      "text": "@torisanOwO that me? 🤯",
+      "created_at": "Fri Oct 23 21:47:20 +0000 2026",
+      "image_url": "images/twitter/d4eab29b96f4540dbe8fb1f4.webp"
+    },
     {
       "tweet_id": "2111149506628628679",
       "media_key": "2111149451184115712",
@@ -392,16 +402,6 @@
       "text": "@Luna_AsterVT",
       "created_at": "Thu Aug 27 11:49:44 +0000 2026",
       "image_url": "images/twitter/819edb790dccfd2453f0a8e1.webp"
-    },
-    {
-      "tweet_id": "2092812866961224149",
-      "media_key": "2092812423015112704",
-      "post_url": "https://x.com/poyo_a1/status/2092812866961224149",
-      "source_image_url": "https://pbs.twimg.com/media/HQspz39XIAAZ5I1.jpg?name=orig",
-      "alt": "",
-      "text": "@bergamot_berge",
-      "created_at": "Thu Aug 27 03:14:04 +0000 2026",
-      "image_url": "images/twitter/849d43c8381c9ea630433fa3.webp"
     }
   ]
 }
