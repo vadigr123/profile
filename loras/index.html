@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LoRA Explorer — Archive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  font-size:13px;background:#1f1f1f;color:#e8e8e8;
+  height:100vh;min-height:520px;overflow:hidden;display:flex;flex-direction:column;
+  user-select:none;
+}
+.toolbar{display:flex;align-items:center;gap:4px;padding:7px 10px;background:#2d2d2d;border-bottom:1px solid #3a3a3a;flex-shrink:0}
+.nav-btn{width:32px;height:32px;background:transparent;border:none;border-radius:4px;color:#e8e8e8;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.nav-btn:hover{background:#3a3a3a}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.nav-btn:disabled:hover{background:transparent}
+.address-bar{flex:1;height:32px;background:#1f1f1f;border:1px solid #3a3a3a;border-radius:4px;padding:0 8px;display:flex;align-items:center;font-size:12.5px;overflow-x:auto;white-space:nowrap;margin:0 8px;scrollbar-width:none}
+.address-bar::-webkit-scrollbar{display:none}
+.crumb{padding:3px 7px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:#e8e8e8}
+.crumb:hover{background:#2e2e2e}
+.crumb-sep{color:#5a5a5a;padding:0 1px}
+.search-box{width:200px;height:32px;background:#1f1f1f;border:1px solid #3a3a3a;border-radius:4px;padding:0 10px;color:#e8e8e8;font-family:inherit;font-size:12.5px;outline:none}
+.search-box:focus{border-color:#4cc2ff}
+.search-box::placeholder{color:#777}
+.body{flex:1;display:flex;overflow:hidden;min-height:0}
+.tree-view{width:270px;flex-shrink:0;background:#272727;border-right:1px solid #3a3a3a;overflow-y:auto;padding:6px 4px}
+.tree-view::-webkit-scrollbar{width:8px}
+.tree-view::-webkit-scrollbar-track{background:transparent}
+.tree-view::-webkit-scrollbar-thumb{background:#444;border-radius:4px}
+.tree-view::-webkit-scrollbar-thumb:hover{background:#555}
+.tree-row{display:flex;align-items:center;padding:4px 6px;cursor:pointer;border-radius:3px;font-size:12.5px;white-space:nowrap;min-width:0}
+.tree-row:hover{background:#333}
+.tree-row.selected{background:#2a3a52}
+.tree-row.selected .tree-label{color:#4cc2ff}
+.chev{width:14px;height:14px;display:flex;align-items:center;justify-content:center;color:#999;font-size:9px;flex-shrink:0;transition:transform .12s}
+.chev.expanded{transform:rotate(90deg)}
+.chev.hidden{visibility:hidden}
+.tree-icon{width:16px;height:16px;margin-right:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:#e8b356}
+.tree-label{flex:1;overflow:hidden;text-overflow:ellipsis;color:#e8e8e8}
+.tree-count{color:#888;font-size:11px;margin-left:6px;flex-shrink:0}
+.tree-children{display:none}
+.tree-children.expanded{display:block}
+.file-list{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.file-header{display:grid;grid-template-columns:1fr 90px 130px;padding:6px 18px;background:#2d2d2d;border-bottom:1px solid #3a3a3a;font-size:11.5px;color:#a0a0a0;font-weight:500;flex-shrink:0}
+.file-header>div{padding:3px 8px;border-radius:3px}
+.file-body{flex:1;overflow-y:auto;padding:4px 6px}
+.file-body::-webkit-scrollbar{width:10px}
+.file-body::-webkit-scrollbar-track{background:transparent}
+.file-body::-webkit-scrollbar-thumb{background:#444;border-radius:5px}
+.file-body::-webkit-scrollbar-thumb:hover{background:#555}
+.file-row{display:grid;grid-template-columns:1fr 90px 130px;padding:6px 18px;border-radius:4px;cursor:pointer;align-items:center;font-size:12.5px}
+.file-row:hover{background:#2e2e2e}
+.file-row.selected{background:#2a3a52}
+.file-name{display:flex;align-items:center;gap:8px;overflow:hidden;min-width:0}
+.file-icon{font-size:15px;flex-shrink:0;color:#e8b356}
+.file-icon.file{color:#7c9ccc}
+.file-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-items{color:#a0a0a0;font-size:12px}
+.file-type{color:#a0a0a0;font-size:12px}
+.empty-state{padding:60px 20px;text-align:center;color:#777}
+.empty-state .emo{font-size:40px;margin-bottom:12px;opacity:.5}
+.status-bar{height:26px;background:#2d2d2d;border-top:1px solid #3a3a3a;display:flex;align-items:center;padding:0 16px;font-size:11.5px;color:#a0a0a0;gap:16px;flex-shrink:0}
+.status-bar .sep{color:#555}
+
+/* ===== PROFILE VIEW ===== */
+.profile{padding:20px 24px 28px;max-width:960px;margin:0 auto;animation:profileIn .22s ease}
+@keyframes profileIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Banner */
+.profile-banner{
+  width:100%;height:150px;border-radius:10px;
+  background:#272727;border:1px solid #3a3a3a;
+  position:relative;overflow:hidden;
+  background-size:cover;background-position:center;
+  cursor:pointer;transition:border-color .15s;
+  margin-bottom:0;
+}
+.profile-banner.empty{
+  border-style:dashed;
+  display:flex;align-items:center;justify-content:center;
+}
+.profile-banner.empty:hover{border-color:#4cc2ff}
+.banner-hint{display:flex;flex-direction:column;align-items:center;gap:6px;color:#777;pointer-events:none}
+.banner-hint .banner-icon{font-size:32px;opacity:.7}
+.banner-hint span:last-child{font-size:12px;letter-spacing:.02em}
+.profile-banner.empty:hover .banner-hint{color:#4cc2ff}
+
+/* Header */
+.profile-header{
+  display:flex;align-items:flex-end;gap:20px;
+  padding:20px 20px 22px;margin-top:-60px;
+  border-bottom:1px solid #3a3a3a;margin-bottom:22px;
+  position:relative;z-index:1;
+}
+
+/* Avatar */
+.profile-avatar{
+  width:110px;height:110px;flex-shrink:0;
+  border-radius:12px;background:#272727;
+  border:4px solid #1f1f1f;
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;color:#e8b356;
+  position:relative;overflow:hidden;cursor:pointer;
+  background-size:cover;background-position:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.45);
+  transition:border-color .15s;
+}
+.profile-avatar:hover{border-color:#4cc2ff}
+.profile-avatar:not(.has-image)::after{
+  content:'📷';
+  position:absolute;inset:0;
+  background:rgba(31,31,31,.85);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;opacity:0;transition:opacity .15s;
+  border-radius:8px;
+}
+.profile-avatar:not(.has-image):hover::after{opacity:1}
+
+.profile-title{min-width:0;flex:1}
+.profile-title h1{
+  font-size:24px;color:#e8e8e8;font-weight:600;
+  margin-bottom:4px;word-break:break-word;line-height:1.2;
+}
+.profile-subtitle{color:#a0a0a0;font-size:12.5px}
+.profile-badge{
+  padding:6px 14px;background:#2d2d2d;
+  border:1px solid #e8b356;border-radius:20px;
+  color:#e8b356;font-size:12px;font-weight:600;
+  white-space:nowrap;
+}
+
+/* Remove btn */
+.image-remove{
+  display:none;
+  position:absolute;top:8px;right:8px;
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(0,0,0,.6);border:none;
+  color:#fff;font-size:14px;line-height:1;
+  cursor:pointer;align-items:center;justify-content:center;
+  z-index:5;font-family:inherit;
+  transition:background .12s;
+}
+.profile-banner:hover .image-remove,
+.profile-avatar:hover .image-remove{display:flex}
+.image-remove:hover{background:rgba(200,50,50,.95)}
+
+/* Sections */
+.profile-section{margin-bottom:24px}
+.profile-section-title{
+  font-size:13px;font-weight:600;color:#e8b356;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.profile-section-title .hint{
+  color:#777;font-weight:400;font-size:11.5px;margin-left:4px;
+  font-style:italic;
+}
+.profile-grid{
+  background:#272727;border:1px solid #3a3a3a;
+  border-radius:6px;overflow:hidden;
+}
+.profile-row{
+  display:grid;grid-template-columns:150px 1fr;
+  padding:10px 16px;font-size:13px;
+  border-bottom:1px solid #333;
+}
+.profile-row:last-child{border-bottom:none}
+.profile-row > span:first-child{color:#a0a0a0}
+.profile-row > span:last-child{color:#e8e8e8;font-weight:500}
+
+/* Editable spans */
+.editable{
+  display:block;cursor:text;
+  padding:2px 6px;margin:-2px -6px;
+  border-radius:3px;
+  transition:background .12s;
+  word-break:break-word;
+  min-height:1.4em;
+}
+.editable:hover{background:rgba(76,194,255,.08)}
+.edit-input{
+  width:100%;background:#1f1f1f;
+  border:1px solid #4cc2ff;border-radius:3px;
+  color:#e8e8e8;font-family:inherit;font-size:13px;
+  padding:2px 6px;outline:none;
+  margin:-2px 0;
+}
+
+/* Prompt */
+.profile-row.prompt-row{align-items:start;padding:12px 16px}
+.profile-row.prompt-row > span:first-child{padding-top:8px}
+.prompt-container{min-width:0}
+.prompt-container textarea{
+  width:100%;min-height:90px;
+  background:#1f1f1f;border:1px solid #3a3a3a;
+  border-radius:4px;color:#e8e8e8;
+  font-family:'Consolas','Courier New',monospace;
+  font-size:12px;padding:8px;outline:none;
+  resize:vertical;transition:border-color .12s;
+  line-height:1.5;
+}
+.prompt-container textarea:hover{border-color:#4a4a4a}
+.prompt-container textarea:focus{border-color:#4cc2ff}
+.prompt-container textarea::placeholder{color:#666}
+
+/* Files list in profile */
+.profile-files{
+  background:#272727;border:1px solid #3a3a3a;
+  border-radius:6px;max-height:420px;overflow-y:auto;
+}
+.profile-files::-webkit-scrollbar{width:8px}
+.profile-files::-webkit-scrollbar-track{background:transparent}
+.profile-files::-webkit-scrollbar-thumb{background:#444;border-radius:4px}
+.profile-files::-webkit-scrollbar-thumb:hover{background:#555}
+.profile-file{
+  display:grid;grid-template-columns:auto 1fr auto;
+  gap:12px;padding:8px 16px;font-size:12.5px;
+  border-bottom:1px solid #333;align-items:center;
+}
+.profile-file:last-child{border-bottom:none}
+.profile-file:hover{background:#2e2e2e}
+.profile-file-icon{color:#7c9ccc;font-size:14px}
+.profile-file-name{color:#e8e8e8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-file-type{color:#a0a0a0;font-size:11.5px}
+.profile-empty{
+  padding:30px 16px;text-align:center;color:#888;
+  background:#272727;border:1px solid #3a3a3a;border-radius:6px;
+  font-size:12.5px;
+}
+
+.action-btn{height:32px;padding:0 12px;border:1px solid #4a4a4a;border-radius:5px;background:#343434;color:#eee;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.action-btn:hover{background:#3d3d3d;border-color:#626262}
+.action-btn[hidden]{display:none}
+.status-message{margin-left:auto;color:#b8b8b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal-backdrop{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-backdrop[hidden]{display:none}
+.auth-dialog{width:min(100%,390px);background:#262626;border:1px solid #484848;border-radius:12px;padding:30px;box-shadow:0 20px 80px #0009;position:relative}
+.modal-close{position:absolute;right:12px;top:9px;border:0;background:none;color:#aaa;font-size:24px;cursor:pointer}
+.auth-mark{font-size:25px;color:#e8b356;margin-bottom:9px}
+.auth-dialog h2{font-size:20px;margin-bottom:9px}
+.auth-copy,.auth-footnote{color:#aaa;line-height:1.5;font-size:13px;margin-bottom:20px}
+.auth-footnote{font-size:11.5px;margin:18px 0 0}
+.auth-dialog label{display:block;font-size:12px;color:#bbb;margin-bottom:7px}
+.auth-dialog input{width:100%;height:42px;background:#1d1d1d;border:1px solid #555;border-radius:5px;padding:0 12px;color:#fff;font:18px Consolas,monospace;letter-spacing:.2em;margin-bottom:12px;outline:none}
+.auth-dialog input:focus{border-color:#4cc2ff}
+.auth-dialog input[hidden],.auth-dialog label[hidden],.auth-dialog button[hidden]{display:none}
+.auth-submit{width:100%;height:40px;border:0;border-radius:5px;background:#d6a94f;color:#1e1a12;font-weight:700;cursor:pointer}
+.auth-submit:disabled{opacity:.55;cursor:wait}
+.auth-back{display:block;margin:12px auto 0;background:none;border:0;color:#8ccfff;cursor:pointer}
+.auth-error{min-height:18px;color:#ff8d82;font-size:12px;margin-top:10px}
+.profile-banner.view-only,.profile-avatar.view-only{cursor:default}
+.profile-banner.view-only:hover,.profile-avatar.view-only:hover{border-color:#3a3a3a}
+.profile-banner.empty.view-only{border-style:solid}
+.read-only-value{display:block;min-width:0;overflow-wrap:anywhere;color:#e8e8e8;font-weight:500}
+.profile-section-title .hint{font-style:normal}
+.resource-list{display:grid;gap:8px}
+.resource-item{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 12px;background:#272727;border:1px solid #3a3a3a;border-radius:6px}
+.resource-icon{color:#e8b356;flex-shrink:0}
+.resource-link{min-width:0;flex:1;color:#8ccfff;text-decoration:none;overflow-wrap:anywhere}
+.resource-link:hover{text-decoration:underline}
+.resource-actions{display:flex;gap:6px;flex-shrink:0}
+.resource-action,.resource-add{border:1px solid #4a4a4a;border-radius:4px;background:#343434;color:#eee;font:inherit;font-size:11.5px;padding:5px 9px;cursor:pointer}
+.resource-action:hover,.resource-add:hover{background:#3d3d3d;border-color:#626262}
+.resource-action.remove{color:#ff9b91}
+.resource-empty{padding:14px;color:#888;background:#272727;border:1px solid #3a3a3a;border-radius:6px}
+.resource-editor{margin-top:10px;padding:12px;background:#272727;border:1px solid #3a3a3a;border-radius:6px}
+.resource-editor-fields{display:grid;grid-template-columns:minmax(140px,.7fr) minmax(220px,1.3fr);gap:10px}
+.resource-editor label{display:grid;gap:5px;color:#aaa;font-size:11.5px}
+.resource-editor input{width:100%;height:34px;background:#1f1f1f;border:1px solid #444;border-radius:4px;padding:0 9px;color:#eee;font:inherit;outline:none}
+.resource-editor input:focus{border-color:#4cc2ff}
+.resource-editor-buttons{display:flex;gap:8px;margin-top:10px}
+.resource-form-error{min-height:16px;margin-top:7px;color:#ff8d82;font-size:11.5px}
+.tree-row{position:relative}
+.catalog-actions{display:none;align-items:center;gap:2px;margin-left:auto;flex-shrink:0}
+.catalog-edit-mode .tree-row:hover .catalog-actions,.catalog-edit-mode .tree-row.selected .catalog-actions{display:flex}
+.catalog-action{width:22px;height:22px;border:1px solid #505050;border-radius:4px;background:#353535;color:#eee;font:inherit;font-size:13px;line-height:1;cursor:pointer}
+.catalog-action:hover{background:#4a4a4a;border-color:#777}
+.catalog-action.delete{color:#ff9b91}
+.file-row.catalog-edit-row{grid-template-columns:minmax(0,1fr) 90px 110px auto}
+.file-header.catalog-edit-header{grid-template-columns:minmax(0,1fr) 90px 110px auto}
+.file-row.catalog-edit-row .catalog-actions{display:flex}
+.catalog-dialog select{width:100%;height:40px;margin-bottom:12px;padding:0 10px;background:#1d1d1d;border:1px solid #555;border-radius:5px;color:#fff;font:14px 'Segoe UI',system-ui,sans-serif}
+.catalog-dialog label{display:block;margin:12px 0 6px;color:#bbb;font-size:12px}
+.catalog-dialog input{letter-spacing:normal;font-size:14px}
+.catalog-cancel{display:block;margin:12px auto 0;background:none;border:0;color:#8ccfff;cursor:pointer}
+.catalog-dialog p{margin-bottom:14px}
+@media(max-width:820px){.tree-view{width:220px}.search-box{width:150px}.toolbar{gap:3px;padding:6px}.address-bar{margin:0 3px}.action-btn{padding:0 8px}}
+@media(max-width:620px){body{min-height:0}.tree-view{width:148px}.tree-row{font-size:11px}.tree-count{display:none}.search-box{width:105px}.action-btn{font-size:11px;padding:0 6px}.file-header,.file-row{grid-template-columns:minmax(100px,1fr) 48px 68px;padding-left:6px;padding-right:6px}.profile{padding:14px 12px 24px}.profile-header{gap:12px;padding:14px 10px 16px;margin-top:-42px}.profile-banner{height:115px}.profile-avatar{width:82px;height:82px;font-size:32px}.profile-title h1{font-size:19px}.profile-badge{padding:5px 8px;font-size:10px}.profile-row{grid-template-columns:94px 1fr;padding:9px 10px;font-size:12px}.status-bar{padding:0 8px;gap:8px}.status-message{max-width:38vw}}
+@media(max-width:620px){.file-row.catalog-edit-row,.file-header.catalog-edit-header{grid-template-columns:minmax(50px,1fr) 38px 54px auto;padding-left:4px;padding-right:4px}.catalog-action{width:20px;height:20px}.tree-row{gap:2px}.catalog-actions{gap:1px}}
+@media(max-width:520px){.resource-editor-fields{grid-template-columns:1fr}.resource-item{flex-wrap:wrap}.resource-actions{margin-left:auto}}
+
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="nav-btn" id="btnBack" title="Back">←</button>
+  <button class="nav-btn" id="btnForward" title="Forward">→</button>
+  <button class="nav-btn" id="btnUp" title="Up">↑</button>
+  <div class="address-bar" id="addressBar"></div>
+  <input type="text" class="search-box" id="searchBox" placeholder="Search..." aria-label="Search">
+  <button class="action-btn" id="saveButton" hidden title="Save changes">Save</button>
+  <button class="action-btn" id="catalogButton" hidden title="Edit folders, LoRA names, files, and version counts">Edit catalog</button>
+  <button class="action-btn" id="authButton">Sign in</button>
+</div>
+
+<div class="body">
+  <aside class="tree-view" id="treeView"></aside>
+  <main class="file-list">
+    <div class="file-header">
+      <div>Name</div>
+      <div>Files</div>
+      <div>Type</div>
+    </div>
+    <div class="file-body" id="fileBody"></div>
+  </main>
+</div>
+
+<div class="status-bar">
+  <span id="statusItems">—</span>
+  <span class="sep">·</span>
+  <span id="statusFiles">—</span>
+  <span class="status-message" id="saveStatus" role="status" aria-live="polite">Public view</span>
+</div>
+
+<div class="modal-backdrop" id="authModal" hidden>
+  <section class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="modal-close" id="closeAuth" aria-label="Close">×</button>
+    <div class="auth-mark">✦</div>
+    <h2 id="authTitle">Owner sign in</h2>
+    <p class="auth-copy" id="authCopy">We will send a one-time code to your Telegram.</p>
+    <form id="authForm">
+      <label id="otpLabel" for="otpInput" hidden>Telegram code</label>
+      <input id="otpInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" hidden>
+      <button class="auth-submit" id="authSubmit" type="submit">Send code to Telegram</button>
+      <button class="auth-back" id="authBack" type="button" hidden>Send a new code</button>
+      <div class="auth-error" id="authError" role="alert"></div>
+    </form>
+    <p class="auth-footnote">Only the owner can edit. A wrong code is replaced immediately. Failed attempts send your IP address and browser/OS details to the owner; the site cannot identify your exact PC.</p>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="catalogModal" hidden>
+  <section class="auth-dialog catalog-dialog" role="dialog" aria-modal="true" aria-labelledby="catalogTitle">
+    <button class="modal-close" id="closeCatalog" aria-label="Close">×</button>
+    <div class="auth-mark">✦</div>
+    <h2 id="catalogTitle">Edit catalog item</h2>
+    <p class="auth-copy" id="catalogCopy">Changes are published to the public catalog.</p>
+    <form id="catalogForm">
+      <label for="catalogName">Name</label>
+      <input id="catalogName" type="text" maxlength="180" required autocomplete="off">
+      <label id="catalogTypeWrap" for="catalogType" hidden>Item type</label>
+      <select id="catalogType" hidden>
+        <option value="folder">Folder</option>
+        <option value="lora">LoRA profile</option>
+        <option value="file">File</option>
+      </select>
+      <label id="catalogCountWrap" for="catalogCount" hidden>Number of versions</label>
+      <input id="catalogCount" type="number" min="1" max="1000" step="1" value="1" hidden>
+      <div class="auth-error" id="catalogError" role="alert"></div>
+      <button class="auth-submit" id="catalogSubmit" type="submit">Save to GitHub</button>
+      <button class="catalog-cancel" id="catalogCancel" type="button">Cancel</button>
+    </form>
+  </section>
+</div>
+
+<script src="./config.js"></script>
+<script>
+/* ============ DATA ============ */
+const ROOT = ["LoRAs", [
+  ["Anima", [
+    ["Character", [
+      ["Mikus-anima", 10], ["milkytiger-anima", 10], ["one_pack", 10],
+      ["Poyo-anima", 10], ["Vadym-E_girl", 10], ["White", 10]
+    ]],
+    ["Style", [
+      ["Bluey", 7], ["Elotelexx", 10], ["Kemono", 10], ["Kemono 2D", 10],
+      ["kemono_2d_v2", 10], ["kuromu", 10], ["milkybot", 10], ["nekowuwu", 10]
+    ]]
+  ]],
+  ["flux", [
+    ["character", []],
+    ["style", [
+      ["bluey", 10], ["cute-background", 9], ["dalee3", 10],
+      ["Fursuit.safetensors", 1, 'file'],
+      ["Gay_LoRA.safetensors", 1, 'file']
+    ]]
+  ]],
+  ["Illustrious", [
+    ["Character", [
+      ["duo", [
+        ["adventure_time", 10], ["DnE_comic", 10], ["poppy_playtime", 10],
+        ["roblox_duo", 10], ["the_amazing_digital_circus", 30],
+        ["the_amazing_world_of_gumball", 20], ["tinydeerguy", 20],
+        ["undertale", 20], ["vocaloid", 10], ["zootopia", 10]
+      ]],
+      ["pack", [["Twitch character", 10]]],
+      ["Solo", [
+        ["AI-Chan", 10], ["android", 10],
+        ["boykisser.safetensors", 1, 'file'],
+        ["Bugdroid", 10], ["Crowl", 10], ["discord", 10], ["finnick", 10],
+        ["Fishstick", 10], ["garfield", 10], ["gumball", 10],
+        ["Hangyodon", 10], ["harbert", 10], ["Kuron", 40],
+        ["lofi_studio", 20], ["mikus", 19], ["milkytiger", 81],
+        ["minecraft", 10], ["minecraft_bee", 10], ["minecraft_enderman", 10],
+        ["minecraft_fox", 10], ["minecraft_wolf", 11], ["mitu_mi", 10],
+        ["pawbert", 20], ["pikaoc", 10], ["poyo", 30], ["puro", 10],
+        ["roblox-noob", 10], ["Rock__black_lagoon", 10],
+        ["shepgoesblep", 10], ["suketoudara", 10], ["tom_lizard", 20],
+        ["turo_of_akesh", 9], ["veilance", 10], ["white_dalmatian", 33],
+        ["ych.safetensors", 1, 'file'], ["ych-il", 10]
+      ]]
+    ]],
+    ["Concept", [
+      ["1000-yard", 10], ["Akakichi", 8], ["amogus_sussy-il", 10],
+      ["amongus", 2], ["any_sock_wear", 9], ["apple_faces", 10],
+      ["a_or_b", 10], ["boykisser", 20], ["Boykisser_dance", 10],
+      ["Broken_mask", 10], ["calling_tin", 20], ["card_ride", 10],
+      ["cat_mirror", 10], ["caveman", 10], ["checken_jockey", 10],
+      ["cheese", 10], ["chibi tpose", 10], ["chibi_happy", 9],
+      ["chibi_peeker", 10], ["chill-guy", 10], ["christmas_tree", 10],
+      ["cig", 10], ["crane_game", 10], ["crush_out", 10], ["cry-il", 10],
+      ["cursed_cat", 10], ["degrees", 8], ["Distracted-Boy", 9],
+      ["dobw-boy", 10], ["Doobie-Ralsei", 10], ["eminem_duo_meme-il", 10],
+      ["exit", 10], ["failed_cooking", 10],
+      ["fake-mrbeast.safetensors", 1, 'file'],
+      ["feet comic bruh", 10], ["fnf-icon", 9], ["fsjal", 10],
+      ["fuck_hospital", 10], ["gaming", 9], ["gay4ppl", 10],
+      ["gift-il", 10], ["girl_drinking_men_kissing", 10],
+      ["glizzy_gobbler", 10], ["guitar_attack", 10], ["heart_ballon-il", 10],
+      ["he_is_280lbs", 10], ["holding_chibi", 10], ["holding_meme-il", 10],
+      ["holdup-il", 10], ["ice_cream2026", 15], ["icon-face", 10],
+      ["jesus-il", 10], ["Kazuya-guy", 9], ["kissing-il", 10],
+      ["krabby_patty", 10], ["laying_cry", 10], ["lazy_ass", 10],
+      ["la_Insemina", 10], ["leash-il", 10], ["loading_cat", 10],
+      ["love_moseum_no_sex", 10], ["Man-Dodging-Kettle", 10],
+      ["McCoppin_mug", 10], ["miiverse_concept-il", 10], ["monalisa", 10],
+      ["mr_fresh", 20], ["naoya_beating", 10], ["nerd", 10],
+      ["night drink", 10], ["noot-noot", 10], ["no_girl", 10],
+      ["officer_holding_toy", 10], ["Oh_God_No_Beel", 10], ["old-guy", 20],
+      ["operation_сatlift", 10], ["paper_doll", 10], ["pika_suprised", 20],
+      ["pillow-shy", 10], ["place_lips_here", 10], ["pop_cat", 10],
+      ["pukeko", 10], ["recycle_bin", 9], ["ryan_gosling_meme", 10],
+      ["sad_crying", 10], ["school", 9], ["she_own_boob", 10],
+      ["Ship_Dynamic_Stickers", 10], ["Silly Monster Drink", 11],
+      ["silly-dance", 10], ["silly-guy", 10], ["silly_bite-il", 10],
+      ["silly_box-il", 10], ["silly_butt", 10], ["silly_cat", 10],
+      ["silly_cat_concept", 9], ["silly_chibi_bite", 10], ["silly_cute", 10],
+      ["silly_jar-il", 10], ["silly_noelle", 10], ["silly_selfie", 10],
+      ["silly_tshirt", 10], ["sitting_point_ld", 10], ["skuf", 9],
+      ["slay", 10], ["sleep cat", 10], ["snowball_surprise", 10],
+      ["spooky_dance", 30], ["square face", 10], ["squeeze_hand", 10],
+      ["squid-game", 10], ["sus-guy", 10], ["T-Pose", 10],
+      ["Thinking_with_a_cup-il", 10], ["this_is_fine", 10],
+      ["Tin_Can_Confession-il", 10], ["Tin_Can_Confession_Chine_meme_idea", 9],
+      ["touch", 9], ["transformation", 10], ["two_persone_one_bike", 9],
+      ["valentines_day", 10], ["valentines_heart_boxers", 10],
+      ["Video Chat Discord", 20], ["want-to-order", 9],
+      ["When-Mama-isn't-Home", 10], ["wooden_booth_valentines", 10],
+      ["yippee-il", 10]
+    ]],
+    ["Local (private)", [
+      ["Character", [
+        ["duo", [["Andrew_duo", 10], ["SunbeeANDMichi", 9]]],
+        ["solo", [
+          ["dalueart", 8], ["Daniel_Leopard", 9], ["diting_il_notmy", 1],
+          ["emicks.safetensors", 1, 'file'], ["Esh.safetensors", 1, 'file'],
+          ["faded-sona", 10], ["Foxbite", 10], ["Kerion", 18],
+          ["luushann", 10], ["merp_dave", 10],
+          ["oob_rabbit.safetensors", 1, 'file'],
+          ["relly_discord", 10], ["Relly_fursona", 10], ["Ruta_fur-il", 8],
+          ["ShortyBlue", 10], ["unilabz-il-V4.safetensors", 1, 'file'],
+          ["windbiom", 19], ["wolfikmajkii", 11], ["yume", 10],
+          ["_hwa_yeong-il_", 11]
+        ]]
+      ]],
+      ["Style", [
+        ["Aki-E.safetensors", 1, 'file'],
+        ["ankor_the_wolf-style", 10],
+        ["badipoki.safetensors", 1, 'file'],
+        ["Bogexboog.safetensors", 1, 'file'],
+        ["fnaf", 10], ["fortnite_style_background", 10],
+        ["Gotereveryday", 10], ["Kiminuki", 10], ["KitaKettu", 10],
+        ["kuromu", 10], ["leeeunwoo0224", 10],
+        ["lps19s.safetensors", 1, 'file'],
+        ["manmosu_marimo", 9], ["mintcashew", 10], ["NeoSiah_", 10],
+        ["niu-ka", 13], ["NowandLater", 15], ["style_Elitelexx", 10],
+        ["S_san_whitefox", 2], ["Young", 34], ["yunbucai", 10]
+      ]]
+    ]],
+    ["other_civitai", [
+      ["character", [
+        ["myOC_Illustrious_Mlaofmd-10.safetensors", 1, 'file'],
+        ["nain_v3_il-07.safetensors", 1, 'file']
+      ]],
+      ["concept", [["vyshyvanka_Illustrious_Mlaofmd-10.safetensors", 1, 'file']]],
+      ["style", [
+        ["brawlStars_Illustrious_Mlaofmd-10.safetensors", 1, 'file'],
+        ["nick7005", 10]
+      ]]
+    ]],
+    ["Pack_checkpoints", [
+      ["dr_kiyo", 10], ["kemono_young-mix", 10], ["milkybot_2026", 1],
+      ["nekowuwu", 10], ["oob", 10],
+      ["pack", [["OneBigLoRA", 10], ["YouShouYan-mini", 14]]],
+      ["pack4", 9], ["pack8", 9]
+    ]],
+    ["Style", [
+      ["bluey", 10], ["CSROLD", 8], ["dalle3", 9],
+      ["discord_video_meme", 10], ["Ernest_Celistine-il", 10],
+      ["fir_emoji", 10], ["fumo", 10], ["fursuit", 35], ["hyaku", 10],
+      ["isekai-quartet.safetensors", 1, 'file'],
+      ["is_this_a_pigeon", 10], ["kemono", 10], ["Kemono V3_Brok", 10],
+      ["Kemono V4", 10], ["kemono_v5", 10], ["labubu_art", 10],
+      ["labubu_irl", 10], ["minecraft_skin", 36], ["pony", 10],
+      ["pvz_zombie-il", 10], ["realism", 10], ["robin_morningwood-il", 10],
+      ["ShortsKemonoMix_LoRA-il", 10], ["spongebob", 10], ["whiteklaw", 30]
+    ]]
+  ]],
+  ["Krea 2", [
+    ["Character", [
+      ["egirl-vadym", 10], ["milkytiger", 11],
+      ["Mixing Character", 10], ["poyo", 10]
+    ]],
+    ["Style", [["Kemono", 10]]]
+  ]],
+  ["pony and sdxl", [
+    ["Character", [
+      ["AI-Chan", 10], ["ark-sona", 10],
+      ["Blaze_Smith__Felinia__Character.safetensors", 1, 'file'],
+      ["boykisser", 29], ["cocoshark", 11], ["dragon_yay", 10],
+      ["Duncan and Eddie", 4], ["JoanTake", 16], ["mikus-sona", 20],
+      ["milkytiger", 9], ["milkytiger_full", 10],
+      ["Minecraft_Villager", 9], ["Otake(Takemoto arashi)", 8],
+      ["PikaOC", 9], ["poyo-sona", 20], ["Pudim", 9],
+      ["roblox_bacon", 9], ["roblox_noob", 9], ["Silver.exe", 8],
+      ["suketoudara-sdxl", 2],
+      ["TwinTailTerror-10.safetensors", 1, 'file'],
+      ["veilance", 9], ["zootopia", [["pawbert", 10]]]
+    ]],
+    ["Concept", [
+      ["1000 yard stare", 9], ["any_sock_wear", 10], ["baller", 9],
+      ["bongo-cat", 9], ["card & cat burger meme", 19], ["chill guy", 6],
+      ["Chillin_with_the_Fan", 4], ["Crawly_green_gnome", 19],
+      ["Crying__Concept", 9], ["Distracted-Boy", 9], ["donw-boy", 10],
+      ["fake-mrbeast", 7], ["hello_kitty", 6], ["in a puddle", 9],
+      ["kiosk", 9], ["kissing meme", 9], ["Leash Meme", 9],
+      ["loading-cat", 9], ["lying and crying", 1], ["naoya_beating", 10],
+      ["neko_ark", 8], ["nerd", 9], ["papper_dool", 9],
+      ["pika_suprised", 10], ["popcat", 9], ["raised_eyebrow", 4],
+      ["reddit-nft", 9], ["roblox-epic_face", 6], ["shy", 9],
+      ["silly-dance", 10], ["silly_guy", 20], ["silly_noelle", 10],
+      ["smoking in bed", 9], ["SpongeBob_In_diner__Concept", 9],
+      ["suprised-pika", 9], ["thinking with a cup", 9], ["think_emoji", 17],
+      ["Tin_Can_Confession_Chine_meme_idea", 10], ["transformation", 8],
+      ["underwear", 7], ["yippee", 18]
+    ]],
+    ["Style", [
+      ["Artifyber", 18], ["balloons.safetensors", 1, 'file'],
+      ["Blitzdrachin__Style.safetensors", 1, 'file'],
+      ["Bogexboog__Furry_style(ponyXL).safetensors", 1, 'file'],
+      ["chibi_shark", 6],
+      ["Club_Penquin_Style.safetensors", 1, 'file'],
+      ["COMISSIOB", 40], ["cute-emoji-style", 7], ["dalle3", 8],
+      ["Doomer & Wojak", 27], ["fir_emoji", 13], ["Flunky_style", 7],
+      ["kemono_2026", 10], ["Lego", 21], ["milkybot_2026", 10],
+      ["minecraft", 5], ["minecraft-skin", 10], ["mintcashew", 10],
+      ["NeoSiah_SDXK", 10], ["poppy_playtime", 9], ["pvz", 5],
+      ["robin_morningwood", 14], ["rorondo4", 6], ["spongebob", 9],
+      ["zestyLemonss", 11], ["zombie", 5]
+    ]]
+  ]],
+  ["qwen", [["character", [["milkytiger", 1]]]]],
+  ["sd-15", [
+    ["character", [
+      ["boykisser", 2],
+      ["cocoshark-10.safetensors", 1, 'file'],
+      ["Flunky-10.safetensors", 1, 'file'],
+      ["gumball_watterson-10.safetensors", 1, 'file'],
+      ["Lo-Fi_boy-10.safetensors", 1, 'file'],
+      ["Lo-Fi_Pack-10.safetensors", 1, 'file'],
+      ["MikusDis_V1.safetensors", 1, 'file'],
+      ["old-milkytiger", 7],
+      ["pock-10.safetensors", 1, 'file'],
+      ["xeroup", 2],
+      ["you_character-10.safetensors", 1, 'file']
+    ]],
+    ["concept", [["two-button", 10]]],
+    ["style", [
+      ["emoji_boykisser-10.safetensors", 1, 'file'],
+      ["Fumo_for_sd_1.5.safetensors", 1, 'file'],
+      ["Fursuit_For_SD_1.5.safetensors", 1, 'file'],
+      ["fur_-05.safetensors", 1, 'file'],
+      ["omori-mikus.safetensors", 1, 'file']
+    ]]
+  ]],
+  ["Unknown", [["all-loras.7z", 1, 'file']]],
+  ["wan", [["character", [["milkytiger", 10]]]]],
+  ["z-image", [
+    ["character", [["mikus", 1], ["milkytiger", 10]]],
+    ["style", [["fursuit", 10]]]
+  ]]
+]];
+
+/* ============ UTILS ============ */
+const MODEL_ICONS = {
+  'Anima': '☾', 'flux': '☼', 'Illustrious': '✦', 'Krea 2': '✧',
+  'pony and sdxl': '✿', 'qwen': '◈', 'sd-15': '❂', 'Unknown': '✧',
+  'wan': '☁', 'z-image': '◇'
+};
+function getFileType(name){
+  const n = name.toLowerCase();
+  if(n.endsWith('.safetensors')) return 'LoRA file';
+  if(n.endsWith('.7z')) return '7-Zip archive';
+  if(n.endsWith('.zip')) return 'ZIP archive';
+  if(n.endsWith('.toml')) return 'TOML';
+  if(n.endsWith('.json')) return 'JSON';
+  if(n.endsWith('.txt')) return 'Text file';
+  if(n.endsWith('.mc')) return 'Minecraft';
+  if(n.endsWith('.white')) return 'File';
+  return 'File';
+}
+function buildNode(arr){
+  const [name, val, type] = arr;
+  if(type === 'file') return { name, isFile: true, fileType: getFileType(name) };
+  if(typeof val === 'number') return { name, isLeaf: true, count: val };
+  return { name, children: (val || []).map(buildNode) };
+}
+function countFiles(node){
+  if(node.isFile) return 1;
+  if(node.isLeaf) return node.count;
+  if(!node.children) return 0;
+  return node.children.reduce((s, c) => s + countFiles(c), 0);
+}
+function generateFiles(name, count){
+  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  const out = [];
+  for(let i = 1; i <= count; i++){
+    out.push({ name: `${base}_epoch_${i}.safetensors`, isFile: true, fileType: 'LoRA file' });
+  }
+  return out;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function detectLoRAType(parts){
+  const c = parts.join('/').toLowerCase();
+  if(c.includes('character')) return 'Character LoRA';
+  if(c.includes('style')) return 'Style LoRA';
+  if(c.includes('concept')) return 'Concept LoRA';
+  if(c.includes('pack')) return 'Pack LoRA';
+  if(c.includes('archive')) return 'Archive';
+  return 'LoRA';
+}
+
+/* ============ REMOTE PROFILES AND OWNER SESSION ============ */
+const APP_CONFIG = window.LORA_EXPLORER_CONFIG || {};
+const API_BASE = String(APP_CONFIG.apiBase || '').replace(/\/$/, '');
+const RAW_BASE = String(APP_CONFIG.rawBase || '').replace(/\/$/, '');
+const PROFILES_URL = APP_CONFIG.profilesUrl || (RAW_BASE ? RAW_BASE + '/data/profiles.json' : '');
+const TOKEN_KEY = 'lora_explorer_owner_session_v1';
+let authToken = localStorage.getItem(TOKEN_KEY) || '';
+let ownerSession = false;
+let profiles = {};
+const saveTimers = new Map();
+let saveChain = Promise.resolve();
+const saveRemovals = new Map();
+const saveRevisions = new Map();
+let resourceEditor = null;
+
+function profileKey(path){ return path.join('/'); }
+function apiUrl(path){ return API_BASE ? API_BASE + path : ''; }
+function safeResourceUrl(value){
+  if(typeof value !== 'string') return '';
+  try{
+    const url = new URL(value.trim());
+    if(!['http:','https:'].includes(url.protocol) || !url.hostname || url.username || url.password) return '';
+    return url.href;
+  }catch(_error){ return ''; }
+}
+function setStatus(message, state='normal'){
+  const el = document.getElementById('saveStatus');
+  if(!el) return;
+  el.textContent = message;
+  el.dataset.state = state;
+}
+function safeAssetUrl(value){
+  if(typeof value !== 'string') return '';
+  if(value.length <= 2100000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value)) return value;
+  if(/^assets\/(?:banners|avatars)\/[a-f0-9]{64}\.jpg$/i.test(value) && RAW_BASE)
+    return RAW_BASE + '/' + value.split('/').map(encodeURIComponent).join('/');
+  return '';
+}
+function loadProfile(path){ return profiles[profileKey(path)] || {}; }
+function getOrLoadProfile(path){ return loadProfile(path); }
+function updateAuthControls(){
+  const button = document.getElementById('authButton');
+  const save = document.getElementById('saveButton');
+  const catalog = document.getElementById('catalogButton');
+  if(!button || !save || !catalog) return;
+  button.textContent = ownerSession ? 'Sign out' : 'Sign in';
+  button.title = ownerSession ? 'End owner session' : 'Owner sign in with Telegram';
+  save.hidden = !ownerSession;
+  catalog.hidden = !ownerSession;
+  if(!ownerSession) catalogEditMode = false;
+  catalog.textContent = catalogEditMode ? 'Done editing' : 'Edit catalog';
+  document.body.classList.toggle('catalog-edit-mode', ownerSession && catalogEditMode);
+  document.body.classList.toggle('owner-mode', ownerSession);
+}
+function openAuthModal(){
+  
+  const modal = document.getElementById('authModal');
+  modal.hidden = false;
+  document.getElementById('authError').textContent = '';
+  document.getElementById('authCopy').textContent = API_BASE
+    ? 'We will send a one-time code to your Telegram.'
+    : 'Set apiBase in config.js to connect the Cloudflare Worker before requesting a code.';
+  document.getElementById('authSubmit').focus();
+}
+function closeAuthModal(){ document.getElementById('authModal').hidden = true; }
+function showOtpStep(challengeId){
+  document.getElementById('authForm').dataset.challengeId = challengeId;
+  document.getElementById('authCopy').textContent = 'Enter the 6-digit code sent to your Telegram. It expires in 5 minutes.';
+  document.getElementById('otpLabel').hidden = false;
+  document.getElementById('otpInput').hidden = false;
+  document.getElementById('authSubmit').textContent = 'Verify code';
+  document.getElementById('authBack').hidden = false;
+  document.getElementById('otpInput').value = '';
+  document.getElementById('otpInput').focus();
+}
+function resetOtpStep(){
+  document.getElementById('authForm').dataset.challengeId = '';
+  document.getElementById('authCopy').textContent = 'We will send a one-time code to your Telegram.';
+  document.getElementById('otpLabel').hidden = true;
+  document.getElementById('otpInput').hidden = true;
+  document.getElementById('authSubmit').textContent = 'Send code to Telegram';
+  document.getElementById('authBack').hidden = true;
+  document.getElementById('authError').textContent = '';
+}
+function saveProfile(path, data, options={}){
+  const id = profileKey(path);
+  profiles[id] = data;
+  saveRevisions.set(id, (saveRevisions.get(id) || 0) + 1);
+  if(options.removeImage){
+    const removals = saveRemovals.get(id) || new Set();
+    removals.add(options.removeImage);
+    saveRemovals.set(id, removals);
+  }
+  if(ownerSession){
+    if(saveTimers.has(id)) clearTimeout(saveTimers.get(id));
+    setStatus('Unsaved changes…', 'pending');
+    saveTimers.set(id, setTimeout(() => queueProfileSave(id), 1500));
+  }
+}
+function queueProfileSave(id){
+  saveChain = saveChain.then(() => persistProfile(id), () => persistProfile(id));
+  return saveChain;
+}
+async function persistProfile(id){
+  if(!ownerSession || !authToken || !API_BASE){ setStatus('No active owner session', 'error'); return false; }
+  if(saveTimers.has(id)){ clearTimeout(saveTimers.get(id)); saveTimers.delete(id); }
+  const profile = profiles[id] || {};
+  const revision = saveRevisions.get(id) || 0;
+  const images = {};
+  for(const field of ['banner','avatar']){
+    if(typeof profile[field] === 'string' && profile[field].startsWith('data:image/jpeg;base64,')) images[field] = profile[field];
+  }
+  const payload = {
+    profileId: id,
+    profile: { fields: profile.fields || {}, prompt: profile.prompt || '', resources: profile.resources || [] },
+    images,
+    removeImages: Array.from(saveRemovals.get(id) || [])
+  };
+  setStatus('Saving to GitHub…', 'pending');
+  try{
+    const response = await fetch(apiUrl('/api/save-profile'), {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
+      body:JSON.stringify(payload)
+    });
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok) throw new Error(result.error || `Server error (${response.status})`);
+    if(result.saved !== true || !result.commit) throw new Error('The Worker did not confirm a GitHub commit.');
+    if((saveRevisions.get(id) || 0) === revision){
+      for(const field of ['banner','avatar']){
+        if(result.profile && result.profile[field]) profile[field] = result.profile[field];
+        else if((saveRemovals.get(id) || new Set()).has(field)) delete profile[field];
+      }
+      saveRemovals.delete(id);
+      setStatus('Saved in commit ' + String(result.commit || '').slice(0,7), 'ok');
+    } else {
+      for(const field of ['banner','avatar']){
+        if(images[field] && profile[field] === images[field] && result.profile?.[field]) profile[field] = result.profile[field];
+      }
+      setStatus('Earlier changes saved; saving newer edits…', 'pending');
+      saveTimers.set(id, setTimeout(() => queueProfileSave(id), 100));
+    }
+    renderList();
+    return true;
+  }catch(error){
+    setStatus('Save failed: ' + error.message, 'error');
+    return false;
+  }
+}
+async function apiRequest(path, body, token=''){
+  if(!API_BASE) throw new Error('Set apiBase in config.js to connect the Cloudflare Worker.');
+  const response = await fetch(apiUrl(path), {
+    method: body === undefined ? 'GET' : 'POST',
+    headers:{...(body === undefined ? {} : {'Content-Type':'application/json'}), ...(token ? {'Authorization':'Bearer '+token} : {})},
+    ...(body === undefined ? {} : {body:JSON.stringify(body)})
+  });
+  const result = await response.json().catch(() => ({}));
+  if(!response.ok){
+    const error = new Error(result.error || `Server error (${response.status})`);
+    error.data = result;
+    throw error;
+  }
+  return result;
+}
+async function requestOtp(){ return apiRequest('/api/auth/request-otp', {}); }
+async function loadPublicProfiles(){
+  if(!PROFILES_URL){ setStatus('Set rawBase in config.js to load public profiles.', 'error'); return; }
+  try{
+    const profilesRequestUrl = new URL(PROFILES_URL, window.location.href);
+    profilesRequestUrl.searchParams.set('_', String(Date.now()));
+    const response = await fetch(profilesRequestUrl.toString(), {cache:'no-store'});
+    if(!response.ok) throw new Error(`profiles.json: HTTP ${response.status}`);
+    const data = await response.json();
+    profiles = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    setStatus('Public view · profiles loaded');
+  }catch(error){
+    profiles = {};
+    setStatus('Public view · profiles failed to load: ' + error.message, 'error');
+  }
+  renderList();
+}
+async function loadCatalog(){
+  if(!RAW_BASE) return;
+  try{
+    const url = new URL(RAW_BASE + '/data/catalog.json');
+    url.searchParams.set('_', String(Date.now()));
+    const response = await fetch(url.toString(), {cache:'no-store'});
+    if(response.status === 404) return;
+    if(!response.ok) throw new Error(`catalog.json: HTTP ${response.status}`);
+    const raw = await response.json();
+    if(!validCatalogData(raw)) throw new Error('catalog.json has an invalid catalog structure.');
+    TREE = buildNode(raw);
+    TREE.name = 'LoRAs';
+  }catch(error){
+    setStatus('Catalog could not load: ' + error.message, 'error');
+  }
+}
+async function restoreOwnerSession(){
+  if(!authToken || !API_BASE){ authToken=''; localStorage.removeItem(TOKEN_KEY); updateAuthControls(); return; }
+  try{
+    await apiRequest('/api/auth/session', undefined, authToken);
+    ownerSession = true;
+    setStatus('Owner session active · changes save to GitHub', 'ok');
+  }catch(_error){
+    authToken=''; ownerSession=false; localStorage.removeItem(TOKEN_KEY);
+    setStatus('Public view · sign in to edit');
+  }
+  updateAuthControls();
+  renderList();
+}
+async function startOwnerLogin(){
+  const form = document.getElementById('authForm');
+  const challenge = form.dataset.challengeId;
+  const button = document.getElementById('authSubmit');
+  const errorEl = document.getElementById('authError');
+  button.disabled = true; errorEl.textContent = '';
+  try{
+    if(!challenge){
+      const result = await requestOtp();
+      showOtpStep(result.challengeId);
+    }else{
+      const code = document.getElementById('otpInput').value.trim();
+      const result = await apiRequest('/api/auth/verify-otp', {challengeId:challenge, code});
+      authToken = result.token;
+      localStorage.setItem(TOKEN_KEY, authToken);
+      ownerSession = true;
+      updateAuthControls(); closeAuthModal(); resetOtpStep();
+      setStatus('Owner session verified', 'ok');
+      renderList();
+    }
+  }catch(error){
+    if(error.data && error.data.challengeId){
+      form.dataset.challengeId = error.data.challengeId;
+      document.getElementById('otpInput').value = '';
+      document.getElementById('otpInput').focus();
+    }
+    errorEl.textContent = error.message;
+  }
+  finally{ button.disabled = false; }
+}
+function endOwnerSession(){
+  authToken=''; ownerSession=false; localStorage.removeItem(TOKEN_KEY);
+  updateAuthControls(); resetOtpStep(); renderAll();
+  setStatus('Signed out · public view');
+}
+
+/* ============ IMAGE UTILS ============ */
+function resizeImage(file, maxW, maxH, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Could not read the file.'));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Could not load the image.'));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        const ratio = Math.min(maxW / w, maxH / h, 1);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function pickImage(cb){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.onchange = () => {
+    const f = input.files && input.files[0];
+    input.remove();
+    if(f) cb(f);
+  };
+  input.click();
+}
+
+/* ============ TREE / STATE ============ */
+let TREE = buildNode(ROOT);
+TREE.name = 'LoRAs';
+let catalogEditMode = false;
+let catalogDialogState = null;
+
+const state = {
+  path: [],
+  history: [[]],
+  historyIndex: 0,
+  expanded: new Set([""]),
+  search: "",
+  selected: null
+};
+
+function getNodeByPath(path){
+  let node = TREE;
+  for(const name of path){
+    if(!node.children) return null;
+    node = node.children.find(c => c.name === name);
+    if(!node) return null;
+  }
+  return node;
+}
+
+function serializeNode(node){
+  if(node.isFile) return [node.name, 1, 'file'];
+  if(node.isLeaf) return [node.name, node.count];
+  return [node.name, (node.children || []).map(serializeNode)];
+}
+function pathStartsWith(path, prefix){
+  return prefix.length <= path.length && prefix.every((part,index) => path[index] === part);
+}
+function collectLeafPaths(node, path, result=[]){
+  const current = path.concat([node.name]);
+  if(node.isLeaf){ result.push(current); return result; }
+  (node.children || []).forEach(child => collectLeafPaths(child, current, result));
+  return result;
+}
+function resetCatalogPath(path){
+  state.path = [...path];
+  state.history = [[]];
+  let current = [];
+  state.path.forEach(part => { current = current.concat([part]); state.history.push(current); });
+  state.historyIndex = state.history.length - 1;
+  state.selected = null;
+  state.search = '';
+  document.getElementById('searchBox').value = '';
+  current = [];
+  state.path.forEach(part => { current = current.concat([part]); state.expanded.add(current.join('/')); });
+}
+function snapshotNavigation(){
+  return {
+    path:[...state.path], history:state.history.map(path => [...path]), historyIndex:state.historyIndex,
+    expanded:new Set(state.expanded), search:state.search, selected:state.selected
+  };
+}
+function restoreNavigation(snapshot){
+  state.path=[...snapshot.path];
+  state.history=snapshot.history.map(path => [...path]);
+  state.historyIndex=snapshot.historyIndex;
+  state.expanded=new Set(snapshot.expanded);
+  state.search=snapshot.search;
+  state.selected=snapshot.selected;
+  document.getElementById('searchBox').value=state.search;
+}
+function validCatalogName(value){
+  const name = String(value || '').trim();
+  if(!name || name.length > 180 || name === '.' || name === '..' || /[\/\\\u0000-\u001f\u007f]/.test(name)) return '';
+  return name;
+}
+function validCatalogData(raw){
+  let count = 0;
+  function visit(item, depth){
+    count++;
+    if(count > 5000 || depth > 24 || !Array.isArray(item) || item.length < 2) return false;
+    if(typeof item[0] !== 'string' || validCatalogName(item[0]) !== item[0]) return false;
+    if(item[2] === 'file') return item.length === 3 && item[1] === 1;
+    if(Number.isInteger(item[1])) return item.length === 2 && item[1] >= 1 && item[1] <= 1000;
+    if(!Array.isArray(item[1])) return false;
+    const names = new Set();
+    for(const child of item[1]){
+      if(!visit(child, depth + 1)) return false;
+      const key = child[0].toLowerCase();
+      if(names.has(key)) return false;
+      names.add(key);
+    }
+    return true;
+  }
+  return Array.isArray(raw) && raw[0] === 'LoRAs' && visit(raw, 0);
+}
+function openCatalogDialog(action, path){
+  const node = action === 'add' ? null : getNodeByPath(path);
+  if(action !== 'add' && (!node || path.length === 0)) return;
+  catalogDialogState = {action, path:[...path], node};
+  const isAdd = action === 'add';
+  document.getElementById('catalogTitle').textContent = isAdd ? 'Add catalog item' : 'Edit catalog item';
+  document.getElementById('catalogCopy').textContent = isAdd
+    ? 'Add a folder, a LoRA profile, or a file to this folder.'
+    : node.isLeaf ? 'Rename this LoRA and change its version count.' : node.isFile ? 'Rename this file.' : 'Rename this folder.';
+  document.getElementById('catalogName').value = isAdd ? '' : node.name;
+  const typeLabel = document.getElementById('catalogTypeWrap');
+  const typeSelect = document.getElementById('catalogType');
+  typeLabel.hidden = !isAdd;
+  typeSelect.hidden = !isAdd;
+  if(isAdd) typeSelect.value = 'lora';
+  const kind = isAdd ? typeSelect.value : node.isLeaf ? 'lora' : 'other';
+  const countLabel = document.getElementById('catalogCountWrap');
+  const countInput = document.getElementById('catalogCount');
+  const showCount = kind === 'lora';
+  countLabel.hidden = !showCount;
+  countInput.hidden = !showCount;
+  countInput.value = isAdd ? '1' : String(node.count || 1);
+  document.getElementById('catalogError').textContent = '';
+  document.getElementById('catalogModal').hidden = false;
+  document.getElementById('catalogName').focus();
+}
+function updateCatalogDialogFields(){
+  if(!catalogDialogState || catalogDialogState.action !== 'add') return;
+  const showCount = document.getElementById('catalogType').value === 'lora';
+  document.getElementById('catalogCountWrap').hidden = !showCount;
+  document.getElementById('catalogCount').hidden = !showCount;
+}
+function closeCatalogDialog(){
+  document.getElementById('catalogModal').hidden = true;
+  catalogDialogState = null;
+}
+function handleCatalogAction(action, path){
+  if(!ownerSession || !catalogEditMode) return;
+  if(action === 'add') openCatalogDialog('add', path);
+  else if(action === 'edit') openCatalogDialog('edit', path);
+  else if(action === 'delete') deleteCatalogItem(path);
+}
+async function persistCatalogMutation(before, previousNavigation, profileMoves=[], deleteProfiles=[]){
+  setStatus('Saving catalog to GitHub…', 'pending');
+  try{
+    const response = await fetch(apiUrl('/api/save-catalog'), {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
+      body:JSON.stringify({catalog:serializeNode(TREE), profileMoves, deleteProfiles})
+    });
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok) throw new Error(result.error || `Server error (${response.status})`);
+    if(result.saved !== true || !result.commit) throw new Error('The Worker did not confirm a catalog commit.');
+    const movedProfiles = profileMoves
+      .filter(move => Object.prototype.hasOwnProperty.call(profiles, move.from))
+      .map(move => ({to:move.to, value:profiles[move.from]}));
+    profileMoves.forEach(move => { delete profiles[move.from]; });
+    movedProfiles.forEach(move => { profiles[move.to] = move.value; });
+    deleteProfiles.forEach(id => { delete profiles[id]; });
+    setStatus('Catalog saved in commit ' + result.commit.slice(0,7), 'ok');
+    renderAll();
+    return true;
+  }catch(error){
+    TREE = buildNode(before);
+    TREE.name = 'LoRAs';
+    restoreNavigation(previousNavigation);
+    setStatus('Catalog save failed: ' + error.message, 'error');
+    renderAll();
+    return false;
+  }
+}
+async function submitCatalogForm(event){
+  event.preventDefault();
+  if(!catalogDialogState || !ownerSession) return;
+  const draft = catalogDialogState;
+  const name = validCatalogName(document.getElementById('catalogName').value);
+  const errorEl = document.getElementById('catalogError');
+  if(!name){ errorEl.textContent = 'Enter a name without slashes or control characters.'; return; }
+  const before = serializeNode(TREE);
+  const previousNavigation = snapshotNavigation();
+  const profileMoves = [];
+  const deleteProfiles = [];
+
+  if(draft.action === 'add'){
+    const parent = getNodeByPath(draft.path);
+    if(!parent || parent.isFile || parent.isLeaf){ errorEl.textContent = 'Choose a folder to add an item.'; return; }
+    if((parent.children || []).some(child => child.name.toLowerCase() === name.toLowerCase())){
+      errorEl.textContent = 'An item with that name already exists in this folder.'; return;
+    }
+    const kind = document.getElementById('catalogType').value;
+    let node;
+    if(kind === 'folder') node = {name, children:[]};
+    else if(kind === 'file') node = {name, isFile:true, fileType:getFileType(name)};
+    else {
+      const count = Number(document.getElementById('catalogCount').value);
+      if(!Number.isInteger(count) || count < 1 || count > 1000){ errorEl.textContent = 'Versions must be a whole number from 1 to 1000.'; return; }
+      node = {name, isLeaf:true, count};
+    }
+    parent.children.push(node);
+  }else{
+    const node = getNodeByPath(draft.path);
+    if(!node) return;
+    const parent = getNodeByPath(draft.path.slice(0,-1));
+    if((parent?.children || []).some(child => child !== node && child.name.toLowerCase() === name.toLowerCase())){
+      errorEl.textContent = 'An item with that name already exists in this folder.'; return;
+    }
+    const oldPath = [...draft.path];
+    const oldLeafPaths = collectLeafPaths(node, oldPath.slice(0,-1)).map(parts => parts.join('/'));
+    node.name = name;
+    if(node.isLeaf){
+      const count = Number(document.getElementById('catalogCount').value);
+      if(!Number.isInteger(count) || count < 1 || count > 1000){ node.name = oldPath.at(-1); errorEl.textContent = 'Versions must be a whole number from 1 to 1000.'; return; }
+      node.count = count;
+    }
+    const newPath = oldPath.slice(0,-1).concat([name]);
+    const newLeafPaths = collectLeafPaths(node, newPath.slice(0,-1)).map(parts => parts.join('/'));
+    oldLeafPaths.forEach((from,index) => { if(from !== newLeafPaths[index]) profileMoves.push({from,to:newLeafPaths[index]}); });
+    if(pathStartsWith(state.path, oldPath)) resetCatalogPath(newPath.concat(state.path.slice(oldPath.length)));
+    else if(state.path.length === oldPath.length - 1 && pathStartsWith(oldPath, state.path) && state.selected === oldPath.at(-1)) state.selected = name;
+  }
+
+  closeCatalogDialog();
+  await persistCatalogMutation(before, previousNavigation, profileMoves, deleteProfiles);
+}
+async function deleteCatalogItem(path){
+  if(path.length === 0) return;
+  const node = getNodeByPath(path);
+  const parent = getNodeByPath(path.slice(0,-1));
+  if(!node || !parent?.children) return;
+  const label = node.isLeaf ? `LoRA “${node.name}” and its profile` : `“${node.name}” and its contents`;
+  if(!window.confirm(`Delete ${label} from the public catalog? This cannot be undone.`)) return;
+  const before = serializeNode(TREE);
+  const previousNavigation = snapshotNavigation();
+  const deleteProfiles = collectLeafPaths(node, path.slice(0,-1)).map(parts => parts.join('/'));
+  parent.children = parent.children.filter(child => child !== node);
+  if(pathStartsWith(state.path, path)) resetCatalogPath(path.slice(0,-1));
+  else if(state.path.length === path.length - 1 && pathStartsWith(path, state.path) && state.selected === path.at(-1)) state.selected = null;
+  await persistCatalogMutation(before, previousNavigation, [], deleteProfiles);
+}
+
+/* ============ ADDRESS BAR ============ */
+function renderAddress(){
+  const bar = document.getElementById('addressBar');
+  let html = `<span class="crumb" data-path="[]"><span>💻</span>LoRAs</span>`;
+  let acc = [];
+  state.path.forEach(name => {
+    acc.push(name);
+    html += `<span class="crumb-sep">›</span>`;
+    html += `<span class="crumb" data-path='${JSON.stringify(acc).replace(/'/g,"&apos;")}'>${escapeHtml(name)}</span>`;
+  });
+  bar.innerHTML = html;
+  bar.querySelectorAll('.crumb').forEach(el => {
+    el.onclick = () => { try { navigate(JSON.parse(el.dataset.path)); } catch(e){} };
+  });
+}
+
+/* ============ TREE RENDER ============ */
+function renderTree(){
+  const c = document.getElementById('treeView');
+  c.innerHTML = renderTreeNode(TREE, [], 0);
+  attachTreeEvents(c);
+}
+function renderCatalogActions(node, isRoot=false){
+  if(!ownerSession || !catalogEditMode) return '';
+  let html = `<span class="catalog-actions">`;
+  if(!node.isFile && !node.isLeaf) html += `<button type="button" class="catalog-action" data-catalog-action="add" title="Add inside this folder">＋</button>`;
+  if(!isRoot) html += `<button type="button" class="catalog-action" data-catalog-action="edit" title="Rename or change versions">✎</button>`;
+  if(!isRoot) html += `<button type="button" class="catalog-action delete" data-catalog-action="delete" title="Delete from catalog">×</button>`;
+  html += `</span>`;
+  return html;
+}
+function renderTreeNode(node, parentPath, depth){
+  const isRoot = depth === 0;
+  const path = isRoot ? [] : parentPath.concat([node.name]);
+  const key = path.join('/');
+  const isExpanded = state.expanded.has(key);
+  const isSelected = JSON.stringify(state.path) === JSON.stringify(path);
+  const hasChildren = node.children && node.children.length > 0;
+  const total = countFiles(node);
+  const pad = depth * 14 + 4;
+  const chev = hasChildren
+    ? `<span class="chev ${isExpanded?'expanded':''}">▶</span>`
+    : `<span class="chev hidden">▶</span>`;
+  let h = `<div class="tree-node">`;
+  h += `<div class="tree-row ${isSelected?'selected':''}" data-path='${JSON.stringify(path).replace(/'/g,"&apos;")}' data-has-children='${hasChildren?1:0}' style="padding-left:${pad}px">`;
+  h += chev;
+  h += `<span class="tree-icon">${node.isFile ? '📄' : isExpanded && hasChildren ? '📂' : '📁'}</span>`;
+  h += `<span class="tree-label">${escapeHtml(node.name)}</span>`;
+  h += `<span class="tree-count">${total}</span>`;
+  h += renderCatalogActions(node, isRoot);
+  h += `</div>`;
+  if(hasChildren){
+    h += `<div class="tree-children ${isExpanded?'expanded':''}">`;
+    node.children.forEach(ch => { h += renderTreeNode(ch, path, depth+1); });
+    h += `</div>`;
+  }
+  h += `</div>`;
+  return h;
+}
+function attachTreeEvents(container){
+  container.querySelectorAll('.tree-row').forEach(row => {
+    const path = JSON.parse(row.dataset.path);
+    const hasChildren = row.dataset.hasChildren === '1';
+    row.onclick = (e) => {
+      const action = e.target.closest('[data-catalog-action]');
+      if(action){ e.preventDefault(); e.stopPropagation(); handleCatalogAction(action.dataset.catalogAction, path); return; }
+      if(e.target.classList.contains('chev') && hasChildren){ toggleExpand(path); return; }
+      navigate(path);
+    };
+  });
+}
+function toggleExpand(path){
+  const key = path.join('/');
+  if(state.expanded.has(key)) state.expanded.delete(key);
+  else state.expanded.add(key);
+  renderTree();
+}
+
+/* ============ PROFILE RENDER ============ */
+function renderProfile(node, path){
+  const profile = getOrLoadProfile(path);
+  const name = node.name;
+  const count = node.count;
+  const model = path[0] || 'LoRAs';
+  const categoryParts = path.slice(1, -1);
+  const category = categoryParts.length ? categoryParts.join(' › ') : '—';
+  const loraType = detectLoRAType(categoryParts);
+  const fullPath = ['LoRAs', ...path].join('\\');
+  const modelIcon = MODEL_ICONS[model] || '📄';
+
+  const fields = {
+    model: model,
+    category: category,
+    versions: String(count),
+    format: '.safetensors',
+    type: loraType,
+    path: fullPath,
+    ...(profile.fields || {}),
+    versions: String(count)
+  };
+  const prompt = profile.prompt || '';
+  const resources = Array.isArray(profile.resources) ? profile.resources : [];
+  const editingResource = resourceEditor && resourceEditor.profileId === profileKey(path) ? resourceEditor : null;
+
+  const q = state.search.trim().toLowerCase();
+  let files = generateFiles(name, count);
+  if(q) files = files.filter(f => f.name.toLowerCase().includes(q));
+  const versionsLabel = count === 1 ? 'version' : 'versions';
+
+  /* Header (banner + avatar + title) */
+  let h = `<div class="profile">`;
+
+  const bannerUrl = safeAssetUrl(profile.banner);
+  const avatarUrl = safeAssetUrl(profile.avatar);
+  h += `<div class="profile-banner ${bannerUrl ? 'has-image' : 'empty'} ${ownerSession ? '' : 'view-only'}" id="profileBanner">`;
+  if(!bannerUrl) h += `<div class="banner-hint"><span class="banner-icon">${ownerSession ? '🖼' : '✦'}</span><span>${ownerSession ? 'Click to add a banner' : 'LoRA profile'}</span></div>`;
+  if(ownerSession && bannerUrl) h += `<button class="image-remove" data-field="banner" title="Remove banner">×</button>`;
+  h += `</div>`;
+
+  h += `<div class="profile-header">`;
+  h += `<div class="profile-avatar ${avatarUrl ? 'has-image' : ''} ${ownerSession ? '' : 'view-only'}" id="profileAvatar">`;
+  if(!avatarUrl) h += modelIcon;
+  if(ownerSession && avatarUrl) h += `<button class="image-remove" data-field="avatar" title="Remove avatar">×</button>`;
+  h += `</div>`;
+  h += `<div class="profile-title">`;
+  h += `<h1>${escapeHtml(name)}</h1>`;
+  h += `<div class="profile-subtitle">LoRA Profile · ${count} ${versionsLabel}</div>`;
+  h += `</div>`;
+  h += `<div class="profile-badge">${escapeHtml(model)}</div>`;
+  h += `</div>`;
+
+  /* Info grid */
+  const infoRows = [
+    ['model', 'Model', fields.model, ''],
+    ['category', 'Category', fields.category, ''],
+    ['versions', 'Versions', fields.versions, ''],
+    ['format', 'Format', fields.format, ''],
+    ['type', 'Type', fields.type, ''],
+    ['path', 'Path', fields.path, 'word-break:break-all;font-size:11.5px;font-family:Consolas,monospace']
+  ];
+
+  h += `<div class="profile-section">`;
+  h += `<div class="profile-section-title">ℹ Information${ownerSession ? '<span class="hint">· click a value to edit</span>' : ''}</div>`;
+  h += `<div class="profile-grid">`;
+  infoRows.forEach(([key, label, val, extra]) => {
+    h += `<div class="profile-row">`;
+    h += `<span>${escapeHtml(label)}</span>`;
+    h += ownerSession && key !== 'versions'
+      ? `<span class="editable" data-field="${key}"${extra ? ` style="${extra}"` : ''}>${escapeHtml(String(val))}</span>`
+      : `<span class="read-only-value"${extra ? ` style="${extra}"` : ''}>${escapeHtml(String(val))}</span>`;
+    h += `</div>`;
+  });
+  /* Prompt row */
+  h += `<div class="profile-row prompt-row">`;
+  h += `<span>Prompt</span>`;
+  h += `<div class="prompt-container">`;
+  h += `<textarea id="profilePrompt" ${ownerSession ? '' : 'readonly'} placeholder="${ownerSession ? 'Enter a prompt for this LoRA...' : 'No prompt added'}">${escapeHtml(prompt)}</textarea>`;
+  h += `</div>`;
+  h += `</div>`;
+  h += `</div></div>`;
+
+  /* Resource links */
+  h += `<div class="profile-section">`;
+  h += `<div class="profile-section-title">🔗 Resources${ownerSession ? '<span class="hint">· links to useful sites</span>' : ''}</div>`;
+  if(resources.length){
+    h += `<div class="resource-list">`;
+    resources.forEach((resource, index) => {
+      const url = safeResourceUrl(resource && resource.url);
+      const title = String(resource && resource.title || (url ? new URL(url).hostname : 'Resource'));
+      h += `<div class="resource-item"><span class="resource-icon">↗</span>`;
+      h += url
+        ? `<a class="resource-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>`
+        : `<span class="resource-link">${escapeHtml(title)} · invalid URL</span>`;
+      if(ownerSession){
+        h += `<div class="resource-actions"><button type="button" class="resource-action" data-resource-edit="${index}">Edit</button><button type="button" class="resource-action remove" data-resource-remove="${index}">Remove</button></div>`;
+      }
+      h += `</div>`;
+    });
+    h += `</div>`;
+  } else {
+    h += `<div class="resource-empty">No resource links added yet.</div>`;
+  }
+  if(ownerSession && !editingResource){
+    h += `<button type="button" class="resource-add" id="addResource">＋ Add resource</button>`;
+  }
+  if(ownerSession && editingResource){
+    h += `<form class="resource-editor" id="resourceEditorForm">`;
+    h += `<div class="resource-editor-fields">`;
+    h += `<label>Resource name<input id="resourceTitle" maxlength="120" value="${escapeHtml(editingResource.title)}" placeholder="For example: Model download page"></label>`;
+    h += `<label>Website URL<input id="resourceUrl" type="url" maxlength="2048" value="${escapeHtml(editingResource.url)}" placeholder="https://example.com" required></label>`;
+    h += `</div><div class="resource-form-error" id="resourceFormError" role="alert"></div>`;
+    h += `<div class="resource-editor-buttons"><button class="resource-action" type="submit">Save link</button><button class="resource-action" type="button" id="cancelResource">Cancel</button></div></form>`;
+  }
+  h += `</div>`;
+
+  /* Files */
+  h += `<div class="profile-section">`;
+  h += `<div class="profile-section-title">📁 Files · ${files.length}${q ? ' (filtered)' : ''}</div>`;
+  if(files.length === 0){
+    h += `<div class="profile-empty">No files match your search.</div>`;
+  } else {
+    h += `<div class="profile-files">`;
+    files.forEach(f => {
+      h += `<div class="profile-file">`;
+      h += `<span class="profile-file-icon">📄</span>`;
+      h += `<span class="profile-file-name">${escapeHtml(f.name)}</span>`;
+      h += `<span class="profile-file-type">LoRA file</span>`;
+      h += `</div>`;
+    });
+    h += `</div>`;
+  }
+  h += `</div>`;
+
+  h += `</div>`;
+  return h;
+}
+
+/* ============ PROFILE EVENTS ============ */
+function setupProfileEvents(path){
+  if(!ownerSession) return;
+  const profile = getOrLoadProfile(path);
+  const banner = document.getElementById('profileBanner');
+  if(banner) banner.addEventListener('click', (e) => {
+    if(e.target.closest('.image-remove')) return;
+    pickImage(async (file) => {
+      try { profile.banner = await resizeImage(file, 1400, 400, 0.82); saveProfile(path, profile); renderList(); }
+      catch(err){ alert('Error: ' + err.message); }
+    });
+  });
+  const avatar = document.getElementById('profileAvatar');
+  if(avatar) avatar.addEventListener('click', (e) => {
+    if(e.target.closest('.image-remove')) return;
+    pickImage(async (file) => {
+      try { profile.avatar = await resizeImage(file, 300, 300, 0.85); saveProfile(path, profile); renderList(); }
+      catch(err){ alert('Error: ' + err.message); }
+    });
+  });
+  document.querySelectorAll('.image-remove').forEach(btn => btn.addEventListener('click', (e) => {
+    e.stopPropagation(); const field = btn.dataset.field; delete profile[field];
+    saveProfile(path, profile, {removeImage:field}); renderList();
+  }));
+  document.querySelectorAll('.editable[data-field]').forEach(el => el.addEventListener('click', () => startInlineEdit(el, profile, path)));
+  const promptEl = document.getElementById('profilePrompt');
+  if(promptEl) promptEl.addEventListener('input', () => { profile.prompt = promptEl.value; saveProfile(path, profile); });
+
+  const addResource = document.getElementById('addResource');
+  if(addResource) addResource.addEventListener('click', () => {
+    resourceEditor = {profileId:profileKey(path), index:null, title:'', url:''};
+    renderList();
+    document.getElementById('resourceTitle')?.focus();
+  });
+  document.querySelectorAll('[data-resource-edit]').forEach(button => button.addEventListener('click', () => {
+    const index = Number(button.dataset.resourceEdit);
+    const item = (Array.isArray(profile.resources) ? profile.resources : [])[index];
+    if(!item) return;
+    resourceEditor = {profileId:profileKey(path), index, title:String(item.title || ''), url:String(item.url || '')};
+    renderList();
+    document.getElementById('resourceTitle')?.focus();
+  }));
+  document.querySelectorAll('[data-resource-remove]').forEach(button => button.addEventListener('click', () => {
+    const index = Number(button.dataset.resourceRemove);
+    profile.resources = (Array.isArray(profile.resources) ? profile.resources : []).filter((_item, itemIndex) => itemIndex !== index);
+    saveProfile(path, profile);
+    renderList();
+  }));
+  const resourceForm = document.getElementById('resourceEditorForm');
+  if(resourceForm) resourceForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const url = safeResourceUrl(document.getElementById('resourceUrl').value);
+    const error = document.getElementById('resourceFormError');
+    if(!url){ error.textContent = 'Enter a valid http:// or https:// address.'; return; }
+    const items = Array.isArray(profile.resources) ? [...profile.resources] : [];
+    if(resourceEditor.index === null && items.length >= 30){ error.textContent = 'A profile can have up to 30 links.'; return; }
+    const title = document.getElementById('resourceTitle').value.trim().slice(0,120) || new URL(url).hostname;
+    const item = {title, url};
+    if(resourceEditor.index === null) items.push(item);
+    else items[resourceEditor.index] = item;
+    profile.resources = items;
+    saveProfile(path, profile);
+    resourceEditor = null;
+    renderList();
+  });
+  const cancelResource = document.getElementById('cancelResource');
+  if(cancelResource) cancelResource.addEventListener('click', () => { resourceEditor = null; renderList(); });
+}
+
+function startInlineEdit(el, profile, path){
+  if(el.querySelector('.edit-input')) return;
+  const field = el.dataset.field;
+  const original = el.textContent;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'edit-input';
+  input.value = original;
+  el.textContent = '';
+  el.appendChild(input);
+  input.focus();
+  input.select();
+
+  let cancelled = false;
+
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); input.blur(); }
+    if(e.key === 'Escape'){ e.preventDefault(); cancelled = true; input.blur(); }
+  });
+  input.addEventListener('blur', () => {
+    if(cancelled){ el.textContent = original; return; }
+    const val = input.value.trim();
+    if(val && val !== original){
+      if(!profile.fields) profile.fields = {};
+      profile.fields[field] = val;
+      saveProfile(path, profile);
+      el.textContent = val;
+    } else {
+      el.textContent = original;
+    }
+  });
+}
+
+/* ============ FILE LIST ============ */
+function renderList(){
+  const body = document.getElementById('fileBody');
+  const header = document.querySelector('.file-header');
+  const node = getNodeByPath(state.path);
+  const catalogActions = ownerSession && catalogEditMode;
+  header.classList.toggle('catalog-edit-header', catalogActions);
+  header.innerHTML = `<div>Name</div><div>Files</div><div>Type</div>${catalogActions ? '<div></div>' : ''}`;
+
+  if(!node){
+    header.style.display = 'grid';
+    body.innerHTML = `<div class="empty-state"><div class="emo">⚠</div>Path not found.</div>`;
+    updateStatus(0,0); return;
+  }
+
+  /* PROFILE MODE */
+  if(node.isLeaf){
+    header.style.display = 'none';
+    body.innerHTML = renderProfile(node, state.path);
+    const shownProfile = getOrLoadProfile(state.path);
+    const bannerUrl = safeAssetUrl(shownProfile.banner), avatarUrl = safeAssetUrl(shownProfile.avatar);
+    if(bannerUrl) document.getElementById('profileBanner').style.backgroundImage = `url("${bannerUrl}")`;
+    if(avatarUrl) document.getElementById('profileAvatar').style.backgroundImage = `url("${avatarUrl}")`;
+    document.getElementById('statusItems').textContent = 'LoRA profile';
+    document.getElementById('statusFiles').textContent = `${node.count} versions`;
+    setupProfileEvents(state.path);
+    return;
+  }
+  if(node.isFile){
+    header.style.display = 'grid';
+    body.innerHTML = `<div class="empty-state"><div class="emo">📄</div>This is a file, not a folder.</div>`;
+    updateStatus(0,1); return;
+  }
+
+  /* FOLDER MODE */
+  header.style.display = 'grid';
+  let items = node.children || [];
+  const q = state.search.trim().toLowerCase();
+  if(q) items = items.filter(it => it.name.toLowerCase().includes(q));
+
+  if(items.length === 0){
+    body.innerHTML = `<div class="empty-state"><div class="emo">📂</div>This folder is empty.</div>`;
+    updateStatus(0,0); return;
+  }
+
+  items = [...items].sort((a,b) => {
+    const aF = !a.isFile ? 1 : 0, bF = !b.isFile ? 1 : 0;
+    if(aF !== bF) return bF - aF;
+    return a.name.localeCompare(b.name);
+  });
+
+  let html = '';
+  let folders = 0, files = 0;
+
+  items.forEach(item => {
+    const isFolder = !item.isFile;
+    if(isFolder) folders++; else files++;
+    let sub = '—', type = '';
+    if(isFolder){
+      sub = item.isLeaf ? String(item.count)
+          : (item.children ? String(item.children.length) : '0');
+      type = 'Folder';
+    } else {
+      type = item.fileType || 'File';
+    }
+    const icon = isFolder ? '📁' : '📄';
+    html += `<div class="file-row ${catalogActions?'catalog-edit-row':''}" data-name='${escapeHtml(item.name).replace(/'/g,"&apos;")}' data-folder='${isFolder?1:0}'>`;
+    html += `<div class="file-name"><span class="file-icon ${isFolder?'':'file'}">${icon}</span><span>${escapeHtml(item.name)}</span></div>`;
+    html += `<div class="file-items">${sub}</div>`;
+    html += `<div class="file-type">${type}</div>`;
+    html += catalogActions ? `<div>${renderCatalogActions(item)}</div>` : '';
+    html += `</div>`;
+  });
+
+  body.innerHTML = html;
+
+  body.querySelectorAll('.file-row').forEach(row => {
+    const isFolder = row.dataset.folder === '1';
+    const name = row.dataset.name;
+    row.onclick = (event) => {
+      const action = event.target.closest('[data-catalog-action]');
+      if(action){ event.preventDefault(); event.stopPropagation(); handleCatalogAction(action.dataset.catalogAction, state.path.concat([name])); return; }
+      body.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+      state.selected = name;
+    };
+    if(isFolder){
+      row.ondblclick = () => navigate(state.path.concat([name]));
+    }
+  });
+
+  updateStatus(folders, files);
+}
+
+function updateStatus(f, n){
+  document.getElementById('statusItems').textContent = `${f} ${f === 1 ? 'folder' : 'folders'}`;
+  document.getElementById('statusFiles').textContent = `${n} ${n === 1 ? 'file' : 'files'}`;
+}
+
+/* ============ NAV ============ */
+function navigate(path){
+  state.path = [...path];
+  if(state.historyIndex < state.history.length - 1){
+    state.history = state.history.slice(0, state.historyIndex + 1);
+  }
+  if(JSON.stringify(state.history[state.historyIndex]) !== JSON.stringify(path)){
+    state.history.push([...path]);
+    state.historyIndex++;
+  }
+  state.selected = null;
+  state.search = "";
+  document.getElementById('searchBox').value = "";
+  currentProfilePath = null; /* reset profile cache */
+  currentProfile = null;
+
+  let acc = [];
+  state.expanded.add("");
+  path.forEach(n => { acc.push(n); state.expanded.add(acc.join('/')); });
+
+  renderAll();
+}
+function goBack(){
+  if(state.historyIndex > 0){
+    state.historyIndex--;
+    state.path = [...state.history[state.historyIndex]];
+    state.selected = null;
+    currentProfilePath = null; currentProfile = null;
+    renderAll();
+  }
+}
+function goForward(){
+  if(state.historyIndex < state.history.length - 1){
+    state.historyIndex++;
+    state.path = [...state.history[state.historyIndex]];
+    state.selected = null;
+    currentProfilePath = null; currentProfile = null;
+    renderAll();
+  }
+}
+function goUp(){
+  if(state.path.length > 0) navigate(state.path.slice(0, -1));
+}
+
+function renderAll(){
+  renderAddress();
+  renderTree();
+  renderList();
+  document.getElementById('btnBack').disabled = state.historyIndex <= 0;
+  document.getElementById('btnForward').disabled = state.historyIndex >= state.history.length - 1;
+  document.getElementById('btnUp').disabled = state.path.length === 0;
+}
+
+/* ============ EVENTS ============ */
+document.getElementById('btnBack').onclick = goBack;
+document.getElementById('btnForward').onclick = goForward;
+document.getElementById('btnUp').onclick = goUp;
+document.getElementById('searchBox').oninput = e => { state.search = e.target.value; renderList(); };
+document.getElementById('authButton').onclick = () => ownerSession ? endOwnerSession() : openAuthModal();
+document.getElementById('saveButton').onclick = () => { if(state.path.length) queueProfileSave(profileKey(state.path)); };
+document.getElementById('catalogButton').onclick = () => {
+  if(!ownerSession) return;
+  catalogEditMode = !catalogEditMode;
+  updateAuthControls();
+  renderAll();
+  setStatus(catalogEditMode ? 'Catalog editing enabled · changes save to GitHub' : 'Catalog editing finished', 'normal');
+};
+document.getElementById('catalogType').onchange = updateCatalogDialogFields;
+document.getElementById('catalogForm').addEventListener('submit', submitCatalogForm);
+document.getElementById('closeCatalog').onclick = closeCatalogDialog;
+document.getElementById('catalogCancel').onclick = closeCatalogDialog;
+document.getElementById('catalogModal').addEventListener('click', e => { if(e.target.id === 'catalogModal') closeCatalogDialog(); });
+document.getElementById('closeAuth').onclick = closeAuthModal;
+document.getElementById('authModal').addEventListener('click', e => { if(e.target.id === 'authModal') closeAuthModal(); });
+document.getElementById('authForm').addEventListener('submit', e => { e.preventDefault(); startOwnerLogin(); });
+document.getElementById('authBack').onclick = async () => { resetOtpStep(); await startOwnerLogin(); };
+document.getElementById('otpInput').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,6); });
+
+async function initializeApp(){
+  renderAll();
+  updateAuthControls();
+  await Promise.all([loadPublicProfiles(), loadCatalog()]);
+  await restoreOwnerSession();
+  renderAll();
+}
+initializeApp();
+</script>
+</body>
+</html>
