@@ -1,8 +1,18 @@
 {
   "username": "poyo_a1",
-  "updated_at": "2026-10-29T22:48:51+00:00",
+  "updated_at": "2026-10-30T13:03:39+00:00",
   "source": "FxTwitter public media timeline (unofficial, best effort)",
   "posts": [
+    {
+      "tweet_id": "2116111438188343362",
+      "media_key": "2116111203244122112",
+      "post_url": "https://x.com/poyo_a1/status/2116111438188343362",
+      "source_image_url": "https://pbs.twimg.com/media/HV3v7X6XIAABDPC.jpg?name=orig",
+      "alt": "До речі це мій коханий <3\n",
+      "text": "Я не буду це коментувати але суть ви зрозуміли...\n#furry #Halloween #gay",
+      "created_at": "Fri Oct 30 10:14:16 +0000 2026",
+      "image_url": "images/twitter/7f80c8bcc198f0a49dc0b173.webp"
+    },
     {
       "tweet_id": "2113749136075853878",
       "media_key": "2113749097156915200",
@@ -392,16 +402,6 @@
       "text": "@Luna_AsterVT",
       "created_at": "Thu Aug 27 11:49:44 +0000 2026",
       "image_url": "images/twitter/91b6a56cc68e6efd0a8ab5f6.webp"
-    },
-    {
-      "tweet_id": "2092942639746195949",
-      "media_key": "2092942630870982658",
-      "post_url": "https://x.com/poyo_a1/status/2092942639746195949",
-      "source_image_url": "https://pbs.twimg.com/media/HQugO-BWIAIHV4G.jpg?name=orig",
-      "alt": "",
-      "text": "@Luna_AsterVT",
-      "created_at": "Thu Aug 27 11:49:44 +0000 2026",
-      "image_url": "images/twitter/819edb790dccfd2453f0a8e1.webp"
     }
   ]
 }
